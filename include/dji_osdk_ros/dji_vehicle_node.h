@@ -195,6 +195,7 @@ namespace dji_osdk_ros
       bool initCameraModule();
       void initService();
       bool initTopic();
+      bool initSubscriber();
       bool initDataSubscribeFromFC();
       bool cleanUpSubscribeFromFC();
     protected:
@@ -285,6 +286,10 @@ namespace dji_osdk_ros
       ros::ServiceServer waypointv2_subscribe_mission_event_server_;
       ros::ServiceServer waypointv2_subscribe_mission_state_server_;
 
+    //! general subscribers
+    ros::Subscriber gimbal_angle_cmd_subscriber;
+    ros::Subscriber gimbal_speed_cmd_subscriber;
+
       /*! publishers */
       //! telemetry data publisher
       ros::Publisher attitude_publisher_;
@@ -342,6 +347,10 @@ namespace dji_osdk_ros
       /*! for general */
       bool getDroneTypeCallback(dji_osdk_ros::GetDroneType::Request &request,
                                 dji_osdk_ros::GetDroneType::Response &response);
+      /*! for gimbal control */
+      void gimbalAngleCtrlCallback(const dji_osdk_ros::Gimbal::ConstPtr& msg);
+      void gimbalSpeedCtrlCallback(const geometry_msgs::Vector3Stamped::ConstPtr& msg);
+
       /*! for flight control */
       bool taskCtrlCallback(FlightTaskControl::Request& request, FlightTaskControl::Response& response);
       bool setJoystickModeCallback(SetJoystickMode::Request& request, SetJoystickMode::Response& response);

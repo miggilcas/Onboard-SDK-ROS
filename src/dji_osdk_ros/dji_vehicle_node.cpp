@@ -83,6 +83,7 @@ VehicleNode::VehicleNode():telemetry_from_fc_(TelemetryType::USE_ROS_BROADCAST),
   initCameraModule();
   initService();
   initTopic();
+  initSubscriber();
 }
 
 VehicleNode::~VehicleNode()
@@ -320,6 +321,15 @@ void VehicleNode::initService()
   waypointv2_subscribe_mission_state_server_ = nh_.advertiseService("dji_osdk_ros/waypointV2_subscribeMissionState", &VehicleNode::waypointV2SubscribeMissionStateCallback, this);
 
   ROS_INFO_STREAM("Services startup!");
+}
+
+bool VehicleNode::initSubscriber()
+{
+  gimbal_angle_cmd_subscriber = nh_.subscribe<dji_osdk_ros::Gimbal>(
+    "dji_osdk_ros/gimbal_angle_cmd", 10, &VehicleNode::gimbalAngleCtrlCallback, this);
+  gimbal_speed_cmd_subscriber = nh_.subscribe<geometry_msgs::Vector3Stamped>(
+    "dji_osdk_ros/gimbal_speed_cmd", 10, &VehicleNode::gimbalSpeedCtrlCallback, this);
+  return true;
 }
 
 bool VehicleNode::initTopic()
