@@ -17,7 +17,7 @@ VehicleNode::gimbalAngleCtrlCallback(
 
   DJI::OSDK::Gimbal::AngleData angle_data;
   //! OSDK takes 0.1 sec as unit
-  angle_data.duration = msg->ts*10;
+  angle_data.duration = msg->ts;
   angle_data.mode     = msg->mode;
   //! OSDK takes 0.1 deg as unit
   angle_data.roll     = RAD2DEG(msg->roll)*10;
@@ -44,7 +44,7 @@ VehicleNode::gimbalSpeedCtrlCallback(
   speed_data.roll  = RAD2DEG(msg->vector.x)*10;
   speed_data.pitch = RAD2DEG(msg->vector.y)*10;
   speed_data.yaw   = RAD2DEG(msg->vector.z)*10;
-  
+
   ptr_wrapper_->getVehicle()->gimbal->setSpeed(&speed_data);
 }
 
