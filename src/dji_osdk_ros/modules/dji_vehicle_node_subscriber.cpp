@@ -24,7 +24,7 @@ VehicleNode::gimbalAngleCtrlCallback(
   angle_data.pitch    = RAD2DEG(msg->pitch)*10;
   angle_data.yaw      = RAD2DEG(msg->yaw)*10;
   
-  ptr_wrapper_->vehicle->gimbal->setAngle(&angle_data);
+  ptr_wrapper_->getVehicle()->gimbal->setAngle(&angle_data);
 }
 
 void
@@ -45,6 +45,6 @@ VehicleNode::gimbalSpeedCtrlCallback(
   speed_data.pitch = RAD2DEG(msg->vector.y)*10;
   speed_data.yaw   = RAD2DEG(msg->vector.z)*10;
   
-  ptr_wrapper_->vehicle->gimbal->setSpeed(&speed_data);
+  ptr_wrapper_->getVehicle()->gimbal->setSpeed(&speed_data);
 }
 
