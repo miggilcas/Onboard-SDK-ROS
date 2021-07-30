@@ -13,7 +13,6 @@ VehicleNode::gimbalAngleCtrlCallback(
   if(ptr_wrapper_ == nullptr)
   {
     ROS_ERROR_STREAM("Vehicle modules is nullptr");
-    return false;
   }
 
   DJI::OSDK::Gimbal::AngleData angle_data;
@@ -37,7 +36,6 @@ VehicleNode::gimbalSpeedCtrlCallback(
   if(ptr_wrapper_ == nullptr)
   {
     ROS_ERROR_STREAM("Vehicle modules is nullptr");
-    return false;
   }
 
   DJI::OSDK::Gimbal::SpeedData speed_data;
