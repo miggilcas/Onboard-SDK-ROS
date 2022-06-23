@@ -128,6 +128,10 @@ namespace dji_osdk_ros
       PAYLOAD_INDEX_INVALID = 0x03,
   };
 
+  #ifdef UNALIGNED
+  #undef UNALIGNED
+  #endif
+  
   enum class AlignStatus
   {
       UNALIGNED,
