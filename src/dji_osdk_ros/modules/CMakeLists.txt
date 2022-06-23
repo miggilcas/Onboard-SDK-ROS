@@ -91,27 +91,47 @@ if (OPEN_CV_3_3_0_INSTALLED AND FOUND_OPENCV_VIZ)
     FILE(GLOB SOURCES *.cc *.cpp *.c *.cxx)
 endif()
 
-ADD_LIBRARY(${PROJECT_NAME} SHARED ${HEADERS} ${SOURCES})
-MESSAGE(STATUS "PROJECT_NAME: ${PROJECT_NAME}")
-MESSAGE(STATUS "DJIOSDK_LIB: ${DJIOSDK_LIBRARIES}")
-TARGET_LINK_LIBRARIES(${PROJECT_NAME}
-                      ${catkin_LIBRARIES}
-		      dji-linker.a
-		      djiosdk-core.a
-                      )
-SET(ADVANCED_SENSING)
-SET(WAYPT2_CORE)
-	TARGET_LINK_LIBRARIES(${PROJECT_NAME}
-                      ${catkin_LIBRARIES}
-		      advanced-sensing.a
-		      ${LIBUSB_1_LIBRARIES}
-		      ${FFMPEG_LIBRARIES}
-                      )
+if (ONBOARD_SDK_ROS_ONLY_INTERFACES)
+    ADD_LIBRARY(${PROJECT_NAME} INTERFACE ${HEADERS})
+    TARGET_LINK_LIBRARIES(
+        ${PROJECT_NAME}
+        INTERFACE
+        ${catkin_LIBRARIES}
+        onboardsdk
+    )
+    add_dependencies(${PROJECT_NAME} INTERFACE dji_osdk_ros_generate_messages_cpp)
 
-add_dependencies(${PROJECT_NAME} dji_osdk_ros_generate_messages_cpp)
+    # target_include_directories(${PROJECT_NAME} INTERFACE ${OpenCV_INCLUDE_DIRS})
 
-target_include_directories(${PROJECT_NAME} PRIVATE ${OpenCV_INCLUDE_DIRS})
+    # if (OpenCV_FOUND)
+    #     target_link_libraries(${PROJECT_NAME} INTERFACE ${OpenCV_LIBS})
+    # endif ()
+else()
 
-if (OpenCV_FOUND)
-	target_link_libraries(${PROJECT_NAME} ${OpenCV_LIBS})
-endif ()
+    ADD_LIBRARY(${PROJECT_NAME} SHARED ${HEADERS} ${SOURCES})
+    MESSAGE(STATUS "PROJECT_NAME: ${PROJECT_NAME}")
+    MESSAGE(STATUS "DJIOSDK_LIB: ${DJIOSDK_LIBRARIES}")
+    TARGET_LINK_LIBRARIES(${PROJECT_NAME}
+                          ${catkin_LIBRARIES}
+    		      dji-linker.a
+    		      djiosdk-core.a
+                          )
+    SET(ADVANCED_SENSING)
+    SET(WAYPT2_CORE)
+    	TARGET_LINK_LIBRARIES(${PROJECT_NAME}
+                          ${catkin_LIBRARIES}
+    		      advanced-sensing.a
+    		      ${LIBUSB_1_LIBRARIES}
+    		      ${FFMPEG_LIBRARIES}
+                          )
+
+    add_dependencies(${PROJECT_NAME} dji_osdk_ros_generate_messages_cpp)
+
+    target_include_directories(${PROJECT_NAME} PRIVATE ${OpenCV_INCLUDE_DIRS})
+
+    if (OpenCV_FOUND)
+    	target_link_libraries(${PROJECT_NAME} ${OpenCV_LIBS})
+    endif ()
+
+endif()
+

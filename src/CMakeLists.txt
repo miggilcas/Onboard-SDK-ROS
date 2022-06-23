@@ -1,2 +1,6 @@
+if (ONBOARD_SDK_ROS_ONLY_INTERFACES)
+add_subdirectory(dji_osdk_ros)
+else()
 add_subdirectory(dji_osdk_ros)
 add_subdirectory(dji_osdk_ros_obsoleted)
+endif()

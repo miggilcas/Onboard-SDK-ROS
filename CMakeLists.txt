@@ -30,9 +30,17 @@ if(ENABLE_ADVANCED_SENSING)
 	ADD_DEFINITIONS(-DADVANCED_SENSING)
 ENDIF()
 
+option(ONBOARD_SDK_ROS_ONLY_INTERFACES "Build only ros interfaces: messages and services" ON)
 
-find_package(LibUSB REQUIRED)
-find_package(FFMPEG REQUIRED)
+if (ONBOARD_SDK_ROS_ONLY_INTERFACES)
+else()
+  find_package(LibUSB)
+  find_package(FFMPEG)
+  if(NOT LibUSB_FOUND OR NOT FFMPEG_FOUND)
+    set(ONBOARD_SDK_ROS_ONLY_INTERFACES ON)
+    set(LIBUSB_1_INCLUDE_DIR "")
+  endif()
+endif()
 
 ## Uncomment this if the package has a setup.py. This macro ensures
 ## modules and global scripts declared therein get installed
@@ -251,6 +259,7 @@ catkin_package(
     std_msgs
     nmea_msgs
 #  DEPENDS system_lib
+ DEPENDS onboardsdk
 )
 
 ###########
@@ -261,7 +270,7 @@ catkin_package(
 ## Your package locations should be listed before other locations
 include_directories(
  include
- #${DJIOSDK_INCLUDE_DIRS}
+ ${DJIOSDK_INCLUDE_DIRS}
  ${LIBUSB_1_INCLUDE_DIR}
  ${catkin_INCLUDE_DIRS}
 )
