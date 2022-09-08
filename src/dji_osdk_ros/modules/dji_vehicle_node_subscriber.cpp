@@ -32,7 +32,7 @@ VehicleNode::gimbalSpeedCtrlCallback(
   const geometry_msgs::Vector3Stamped::ConstPtr& msg
 )
 {
-  ROS_DEBUG("called gimbalAngleCtrlCallback");
+  ROS_DEBUG("called gimbalSpeedCtrlCallback");
   if(ptr_wrapper_ == nullptr)
   {
     ROS_ERROR_STREAM("Vehicle modules is nullptr");
