@@ -614,6 +614,26 @@ void VehicleNode::publish100HzData(Vehicle *vehicle, RecvContainer recvFrame,
   acceleration.vector.y        = a_FC.x;
   acceleration.vector.z        = a_FC.z;  //z sign is already U
   p->acceleration_publisher_.publish(acceleration);
+
+  Telemetry::TypeMap<Telemetry::TOPIC_AVOID_DATA>::type avoidData =
+      vehicle->subscribe->getValue<Telemetry::TOPIC_AVOID_DATA>();
+  dji_osdk_ros::ObstacleInfo obstacle_info;
+  obstacle_info.header.frame_id = "body_FLU";
+  obstacle_info.header.stamp = msg_time;
+  obstacle_info.down  = avoidData.down;
+  obstacle_info.front = avoidData.front;
+  obstacle_info.right = avoidData.right;
+  obstacle_info.back  = avoidData.back;
+  obstacle_info.left  = avoidData.left;
+  obstacle_info.up    = avoidData.up;
+
+  obstacle_info.down_health  = avoidData.downHealth;
+  obstacle_info.front_health = avoidData.frontHealth;
+  obstacle_info.right_health = avoidData.rightHealth;
+  obstacle_info.back_health  = avoidData.backHealth;
+  obstacle_info.left_health  = avoidData.leftHealth;
+  obstacle_info.up_health    = avoidData.upHealth;
+  p->obstacle_info_publisher_.publish(obstacle_info);
 }
 
 void VehicleNode::publish400HzData(Vehicle *vehicle, RecvContainer recvFrame,

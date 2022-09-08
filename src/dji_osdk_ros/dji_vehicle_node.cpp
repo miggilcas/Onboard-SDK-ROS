@@ -399,6 +399,8 @@ bool VehicleNode::initTopic()
   time_sync_fc_utc_publisher_ = nh_.advertise<dji_osdk_ros::FCTimeInUTC>("dji_osdk_ros/time_sync_fc_time_utc", 10);
   time_sync_pps_source_publisher_ = nh_.advertise<std_msgs::String>("dji_osdk_ros/time_sync_pps_source", 10);
 
+  obstacle_info_publisher_ = nh_.advertise<dji_osdk_ros::ObstacleInfo>("dji_osdk_ros/obstacle_info", 10);
+
   #ifdef ADVANCED_SENSING
   main_camera_stream_publisher_ = nh_.advertise<sensor_msgs::Image>("dji_osdk_ros/main_camera_images", 10);
   fpv_camera_stream_publisher_ = nh_.advertise<sensor_msgs::Image>("dji_osdk_ros/fpv_camera_images", 10);
@@ -525,6 +527,7 @@ bool VehicleNode::initDataSubscribeFromFC()
   topicList100Hz.push_back(Telemetry::TOPIC_QUATERNION);
   topicList100Hz.push_back(Telemetry::TOPIC_ACCELERATION_GROUND);
   topicList100Hz.push_back(Telemetry::TOPIC_ANGULAR_RATE_FUSIONED);
+  topicList100Hz.push_back(Telemetry::TOPIC_AVOID_DATA);
 
   int nTopic100Hz    = topicList100Hz.size();
   if (ptr_wrapper_->initPackageFromTopicList(static_cast<int>(SubscribePackgeIndex::PACKAGE_ID_100HZ), nTopic100Hz,

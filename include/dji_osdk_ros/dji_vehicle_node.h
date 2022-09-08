@@ -151,6 +151,7 @@
 #include <dji_osdk_ros/VOPosition.h>
 #include <dji_osdk_ros/FCTimeInUTC.h>
 #include <dji_osdk_ros/GPSUTC.h>
+#include <dji_osdk_ros/ObstacleInfo.h>
 
 //waypointV2.0
 #include <dji_osdk_ros/WaypointV2.h>
@@ -328,6 +329,8 @@ namespace dji_osdk_ros
       ros::Publisher time_sync_gps_utc_publisher_;
       ros::Publisher time_sync_fc_utc_publisher_;
       ros::Publisher time_sync_pps_source_publisher_;
+
+      ros::Publisher obstacle_info_publisher_;
 
       //advanced sensing
       #ifdef ADVANCED_SENSING

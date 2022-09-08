@@ -121,7 +121,9 @@ add_message_files(
   HMSPushInfo.msg
 
   FlightCommand.msg
-  FlightCommandMode.msg  
+  FlightCommandMode.msg 
+   
+  ObstacleInfo.msg  
 )
 
 ## Generate services in the 'srv' folder
