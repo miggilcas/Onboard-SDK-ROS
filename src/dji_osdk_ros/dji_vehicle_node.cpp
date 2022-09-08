@@ -329,6 +329,8 @@ bool VehicleNode::initSubscriber()
     "dji_osdk_ros/gimbal_angle_cmd", 10, &VehicleNode::gimbalAngleCtrlCallback, this);
   gimbal_speed_cmd_subscriber = nh_.subscribe<geometry_msgs::Vector3Stamped>(
     "dji_osdk_ros/gimbal_speed_cmd", 10, &VehicleNode::gimbalSpeedCtrlCallback, this);
+  flight_cmd_subscriber = nh_.subscribe<dji_osdk_ros::FlightCommand>(
+    "dji_osdk_ros/flight_cmd", 10, &VehicleNode::flightCommandCallback, this);
   return true;
 }
 

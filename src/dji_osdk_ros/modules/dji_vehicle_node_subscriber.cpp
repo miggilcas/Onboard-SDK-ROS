@@ -48,3 +48,30 @@ VehicleNode::gimbalSpeedCtrlCallback(
   ptr_wrapper_->getVehicle()->gimbal->setSpeed(&speed_data);
 }
 
+void
+VehicleNode::flightCommandCallback(
+  const dji_osdk_ros::FlightCommand::ConstPtr& msg
+)
+{
+  ROS_DEBUG("called flightCommandCallback");
+  if(ptr_wrapper_ == nullptr)
+  {
+    ROS_ERROR_STREAM("Vehicle modules is nullptr");
+  }
+
+  dji_osdk_ros::JoystickMode joystickMode;
+  joystickMode.horizontalLogic      = msg->mode.horizontal_mode;
+  joystickMode.verticalLogic        = msg->mode.vertical_mode;
+  joystickMode.yawLogic             = msg->mode.yaw_mode;
+  joystickMode.horizontalCoordinate = msg->mode.horizontal_coordinate;
+  joystickMode.stableMode           = msg->mode.stable_mode;
+  ptr_wrapper_->setJoystickMode(joystickMode);
+
+  dji_osdk_ros::JoystickCommand joystickCommand;
+  joystickCommand.x   = msg->cmd.x;
+  joystickCommand.y   = msg->cmd.y;
+  joystickCommand.z   = msg->cmd.z;
+  joystickCommand.yaw = msg->cmd.yaw;
+  ptr_wrapper_->JoystickAction(joystickCommand);
+}
+

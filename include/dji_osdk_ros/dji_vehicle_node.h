@@ -58,6 +58,9 @@
 #include <nmea_msgs/Sentence.h>
 
 /*! services */
+//flight control msgs
+#include <dji_osdk_ros/FlightCommand.h>
+#include <dji_osdk_ros/FlightCommandMode.h>
 //flight control services
 #include <dji_osdk_ros/GetDroneType.h>
 #include <dji_osdk_ros/FlightTaskControl.h>
@@ -289,6 +292,7 @@ namespace dji_osdk_ros
     //! general subscribers
     ros::Subscriber gimbal_angle_cmd_subscriber;
     ros::Subscriber gimbal_speed_cmd_subscriber;
+    ros::Subscriber flight_cmd_subscriber;
 
       /*! publishers */
       //! telemetry data publisher
@@ -352,6 +356,8 @@ namespace dji_osdk_ros
       void gimbalSpeedCtrlCallback(const geometry_msgs::Vector3Stamped::ConstPtr& msg);
 
       /*! for flight control */
+      void flightCommandCallback(const dji_osdk_ros::FlightCommand::ConstPtr& msg);
+
       bool taskCtrlCallback(FlightTaskControl::Request& request, FlightTaskControl::Response& response);
       bool setJoystickModeCallback(SetJoystickMode::Request& request, SetJoystickMode::Response& response);
       bool JoystickActionCallback(JoystickAction::Request& request, JoystickAction::Response& response);

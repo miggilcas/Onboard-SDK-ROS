@@ -119,6 +119,9 @@ add_message_files(
   SmartBatteryState.msg
   SmartBatteryDynamicInfo.msg
   HMSPushInfo.msg
+
+  FlightCommand.msg
+  FlightCommandMode.msg  
 )
 
 ## Generate services in the 'srv' folder
