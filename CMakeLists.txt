@@ -30,16 +30,18 @@ if(ENABLE_ADVANCED_SENSING)
 	ADD_DEFINITIONS(-DADVANCED_SENSING)
 ENDIF()
 
-option(ONBOARD_SDK_ROS_ONLY_INTERFACES "Build only ros interfaces: messages and services" ON)
+option(ONBOARD_SDK_ROS_ONLY_INTERFACES "Build only ros interfaces: messages and services" OFF)
 
 if (ONBOARD_SDK_ROS_ONLY_INTERFACES)
-else()
   find_package(LibUSB)
   find_package(FFMPEG)
   if(NOT LibUSB_FOUND OR NOT FFMPEG_FOUND)
     set(ONBOARD_SDK_ROS_ONLY_INTERFACES ON)
     set(LIBUSB_1_INCLUDE_DIR "")
   endif()
+else()
+  find_package(LibUSB REQUIRED)
+  find_package(FFMPEG REQUIRED)
 endif()
 
 ## Uncomment this if the package has a setup.py. This macro ensures
@@ -254,19 +256,32 @@ add_service_files(
 ## CATKIN_DEPENDS: catkin_packages dependent projects also need
 ## DEPENDS: system dependencies of this project that dependent projects also need
 MESSAGE(STATUS "USB INCLUDE: ${LIBUSB_1_INCLUDE_DIR}")
-catkin_package(
-  INCLUDE_DIRS include
-#  LIBRARIES onboard-sdk-ros
-  CATKIN_DEPENDS
-    message_runtime
-    geometry_msgs
-    nav_msgs
-    std_msgs
-    nmea_msgs
-#  DEPENDS system_lib
- DEPENDS onboardsdk
-)
-
+if (ONBOARD_SDK_ROS_ONLY_INTERFACES)
+  catkin_package(
+    INCLUDE_DIRS include
+  #  LIBRARIES onboard-sdk-ros
+    CATKIN_DEPENDS
+      message_runtime
+      geometry_msgs
+      nav_msgs
+      std_msgs
+      nmea_msgs
+  #  DEPENDS system_lib
+   DEPENDS onboardsdk
+  )
+else()
+  catkin_package(
+    INCLUDE_DIRS include
+  #  LIBRARIES onboard-sdk-ros
+    CATKIN_DEPENDS
+      message_runtime
+      geometry_msgs
+      nav_msgs
+      std_msgs
+      nmea_msgs
+  #  DEPENDS system_lib
+  )
+endif()
 ###########
 ## Build ##
 ###########
