@@ -400,6 +400,7 @@ bool VehicleNode::initTopic()
   time_sync_pps_source_publisher_ = nh_.advertise<std_msgs::String>("dji_osdk_ros/time_sync_pps_source", 10);
 
   obstacle_info_publisher_ = nh_.advertise<dji_osdk_ros::ObstacleInfo>("dji_osdk_ros/obstacle_info", 10);
+  align_time_base_publisher_ = nh_.advertise<std_msgs::Time>("dji_osdk_ros/align_time_base", 10, true);
 
   #ifdef ADVANCED_SENSING
   main_camera_stream_publisher_ = nh_.advertise<sensor_msgs::Image>("dji_osdk_ros/main_camera_images", 10);

@@ -749,6 +749,9 @@ void VehicleNode::alignRosTimeWithFlightController(ros::Time now_time, uint32_t 
 
     if(aligned_count > STABLE_ALIGNMENT_COUNT)
     {
+      std_msgs::Time msg;
+      msg.data = base_time_;
+      align_time_base_publisher_.publish(msg); // latched publisher
       ROS_INFO("[dji_osdk_ros] ***** Time alignment successful! *****");
       curr_align_state_ = AlignStatus::ALIGNED;
     }

@@ -55,6 +55,7 @@
 #include <std_msgs/Int16.h>
 #include <std_msgs/Float32.h>
 #include <std_msgs/String.h>
+#include <std_msgs/Time.h>
 #include <nmea_msgs/Sentence.h>
 
 /*! services */
@@ -331,6 +332,7 @@ namespace dji_osdk_ros
       ros::Publisher time_sync_pps_source_publisher_;
 
       ros::Publisher obstacle_info_publisher_;
+      ros::Publisher align_time_base_publisher_;
 
       //advanced sensing
       #ifdef ADVANCED_SENSING
