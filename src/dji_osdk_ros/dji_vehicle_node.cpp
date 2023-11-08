@@ -1849,7 +1849,7 @@ void VehicleNode::fileDataReqCB(E_OsdkStat ret_code, void *udata) {
 
 // SERVICES
 // In order to download the filelist, it must be necessary to include this in functions
-bool VehicleNode::downloadCameraFilelistCB(onboard_dji::FileList&  request, onboard_dji::FileList& response){
+bool VehicleNode::downloadCameraFilelistCB(FileList::Request& request, FileList::Response& response){
   ErrorCode::ErrorCodeType ret;
   ROS_INFO("Play back mode setting......");
   vehicle->cameraManager->setModeSync(PAYLOAD_INDEX_0,
@@ -1867,7 +1867,7 @@ bool VehicleNode::downloadCameraFilelistCB(onboard_dji::FileList&  request, onbo
   ErrorCode::printErrorCodeMsg(ret);
 }
 // In order to download the raw files from the main camera
-bool VehicleNode::downloadCameraFilesCallback(onboard_dji::DownloadMedia&  request, onboard_dji::DownloadMedia& response){
+bool VehicleNode::downloadCameraFilesCallback(DownloadMedia::Request& request, DownloadMedia::Response& response){
   ErrorCode::ErrorCodeType ret;
   ROS_INFO("Download file number : %d", cur_file_list.media.size());
   uint32_t downloadCnt = cur_file_list.media.size();
