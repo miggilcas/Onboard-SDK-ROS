@@ -1823,7 +1823,7 @@ bool VehicleNode::emergencyBrakeCallback(EmergencyBrake::Request& request, Emerg
 
 // For media Download from SD cameras (tested in Zenmuse H20T, DJI M300)
 // AUXILIAR FUNCTIONS
-void VehicleNode::fileListReqCB(E_OsdkStat ret_code, const FilePackage file_list, void* udata) {
+void fileListReqCB(E_OsdkStat ret_code, const FilePackage file_list, void* udata) {
   //ROS_INFO("\033[1;32;40m##[%s] : ret = %d \033[0m", udata, ret_code);
   if (ret_code == OSDK_STAT_OK) {
     cur_file_list = file_list;
@@ -1837,7 +1837,7 @@ void VehicleNode::fileListReqCB(E_OsdkStat ret_code, const FilePackage file_list
 }
 
 
-void VehicleNode::fileDataReqCB(E_OsdkStat ret_code, void *udata) {
+void fileDataReqCB(E_OsdkStat ret_code, void *udata) {
   if (ret_code == OSDK_STAT_OK) {
     ROS_INFO("\033[1;32;40m##Download file [%s] successfully. \033[0m", udata);
   } else {
@@ -1863,7 +1863,7 @@ bool VehicleNode::downloadCameraFilelistCB(FileList::Request& request, FileList:
   ROS_INFO("Try to download file list  .......");
   ret = vehicle->cameraManager->startReqFileList(
     PAYLOAD_INDEX_0,
-    VehicleNode::fileListReqCB,
+    fileListReqCB,
     (void*)("Download main camera file list"));
   ErrorCode::printErrorCodeMsg(ret);
 }
@@ -1897,7 +1897,7 @@ bool VehicleNode::downloadCameraFilesCallback(DownloadMedia::Request& request, D
       PAYLOAD_INDEX_0,
       targetFile.fileIndex,
       localPath,
-      VehicleNode::fileDataReqCB,
+      fileDataReqCB,
       (void*)(localPath.c_str()));
     ErrorCode::printErrorCodeMsg(ret);
     while (fileDataDownloadFinished == false) {
