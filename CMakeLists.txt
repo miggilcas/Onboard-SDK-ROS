@@ -208,6 +208,10 @@ add_service_files(
   StereoVGASubscription.srv
   StereoDepthSubscription.srv
   SetupCameraStream.srv
+
+  # new ones
+  DownloadMedia.srv
+  FileList.srv
 )
 
 ## Generate actions in the 'action' folder

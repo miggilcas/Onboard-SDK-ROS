@@ -203,6 +203,10 @@ namespace dji_osdk_ros
       bool initSubscriber();
       bool initDataSubscribeFromFC();
       bool cleanUpSubscribeFromFC();
+
+      // for download mediafiles from camera
+      void fileListReqCB(E_OsdkStat ret_code, const FilePackage file_list, void* udata);
+      void fileDataReqCB(E_OsdkStat ret_code, void *udata);
     protected:
       /*! services */
       /*! for general */
@@ -489,6 +493,9 @@ namespace dji_osdk_ros
                                                    dji_osdk_ros::SubscribeWaypointV2Event::Response& response);
       bool waypointV2SubscribeMissionStateCallback(dji_osdk_ros::SubscribeWaypointV2State::Request& request,
                                                    dji_osdk_ros::SubscribeWaypointV2State::Response& response);
+      
+      bool downloadCameraFilelistCB(onboard_dji::FileList&  request, onboard_dji::FileList& response);
+      bool downloadCameraFilesCallback(onboard_dji::DownloadMedia&  request, onboard_dji::DownloadMedia& response);
 
       bool initSubscribe();
 
@@ -525,6 +532,9 @@ namespace dji_osdk_ros
 
       std::vector<DJIWaypointV2Action> actions;
 
+      // download camera files
+      FilePackage cur_file_list; // Could be a problem
+      bool fileDataDownloadFinished = false;
     //! data broadcast callback
     void dataBroadcastCallback();
     void fromMobileDataCallback(RecvContainer recvFrame);

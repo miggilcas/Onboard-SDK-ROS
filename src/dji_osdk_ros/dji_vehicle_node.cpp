@@ -49,23 +49,23 @@ VehicleNode::VehicleNode():telemetry_from_fc_(TelemetryType::USE_ROS_BROADCAST),
                            R_ENU2NED_(tf::Matrix3x3(0,  1,  0, 1,  0,  0, 0,  0, -1)),
                            curr_align_state_(AlignStatus::UNALIGNED)
 {
-  nh_.param("/vehicle_node/app_id",        app_id_, 12345);
-  nh_.param("/vehicle_node/enc_key",       enc_key_, std::string("abcde123"));
-  nh_.param("/vehicle_node/acm_name",      device_acm_, std::string("/dev/ttyACM0"));
-  nh_.param("/vehicle_node/serial_name",   device_, std::string("/dev/ttyUSB0"));
-  nh_.param("/vehicle_node/baud_rate",     baud_rate_, 921600);
-  nh_.param("/vehicle_node/app_version",   app_version_, 1);
-  nh_.param("/vehicle_node/drone_version", drone_version_, std::string("M300")); // choose M300 as default
-  nh_.param("/vehicle_node/gravity_const", gravity_const_, 9.801);
-  nh_.param("/vehicle_node/align_time",    align_time_with_FC_, false);
-  nh_.param("/vehicle_node/use_broadcast", user_select_broadcast_, false);
+  nh_.param("vehicle_node/app_id",        app_id_, 12345);
+  nh_.param("vehicle_node/enc_key",       enc_key_, std::string("abcde123"));
+  nh_.param("vehicle_node/acm_name",      device_acm_, std::string("/dev/ttyACM0"));
+  nh_.param("vehicle_node/serial_name",   device_, std::string("/dev/ttyUSB0"));
+  nh_.param("vehicle_node/baud_rate",     baud_rate_, 921600);
+  nh_.param("vehicle_node/app_version",   app_version_, 1);
+  nh_.param("vehicle_node/drone_version", drone_version_, std::string("M300")); // choose M300 as default
+  nh_.param("vehicle_node/gravity_const", gravity_const_, 9.801);
+  nh_.param("vehicle_node/align_time",    align_time_with_FC_, false);
+  nh_.param("vehicle_node/use_broadcast", user_select_broadcast_, false);
   bool enable_ad = false;
 #ifdef ADVANCED_SENSING
   enable_ad = true;
 #else
   enable_ad = false;
 #endif
-  ptr_wrapper_ = new VehicleWrapper(app_id_, enc_key_, device_acm_, device_, baud_rate_, enable_ad);
+  ptr_wrapper_ = new VehicleWrapper(app_id_, enc_key_, device_acm_, device_, baud_rate_, enable_ad); //Quite important for the services
 
   if(ptr_wrapper_ == nullptr)
   {
@@ -231,6 +231,9 @@ void VehicleNode::initService()
   camera_control_start_shoot_interval_photo_server_ = nh_.advertiseService("camera_start_shoot_interval_photo", &VehicleNode::cameraStartShootIntervalPhotoCallback, this);
   camera_control_stop_shoot_photo_server_ = nh_.advertiseService("camera_stop_shoot_photo", &VehicleNode::cameraStopShootPhotoCallback, this);
   camera_control_record_video_action_server_ = nh_.advertiseService("camera_record_video_action", &VehicleNode::cameraRecordVideoActionCallback, this);
+  camera_control_download_filelist_server_ = nh_.advertiseService("camera_download_filelist", &VehicleNode::downloadCameraFilelistCB, this);
+  camera_control_download_files_server_ = nh_.advertiseService("camera_download_files", &VehicleNode::downloadCameraFilesCallback, this);
+
 
   /* @brief
    * get whole battery info server
@@ -424,7 +427,7 @@ bool VehicleNode::initTopic()
     return false;
   }
 
-  Vehicle* vehicle = ptr_wrapper_->getVehicle();
+  Vehicle* vehicle = ptr_wrapper_->getVehicle(); // IMPORTANT
   if (telemetry_from_fc_ == TelemetryType::USE_ROS_BROADCAST)
   {
     ACK::ErrorCode broadcast_set_freq_ack;
@@ -1816,6 +1819,91 @@ bool VehicleNode::emergencyBrakeCallback(EmergencyBrake::Request& request, Emerg
   response.result = ptr_wrapper_->emergencyBrake();
 
   return response.result;
+}
+
+// For media Download from SD cameras (tested in Zenmuse H20T, DJI M300)
+// AUXILIAR FUNCTIONS
+void VehicleNode::fileListReqCB(E_OsdkStat ret_code, const FilePackage file_list, void* udata) {
+  //ROS_INFO("\033[1;32;40m##[%s] : ret = %d \033[0m", udata, ret_code);
+  if (ret_code == OSDK_STAT_OK) {
+    cur_file_list = file_list;
+    ROS_INFO("file_list.type = %d", file_list.type);
+    ROS_INFO("file_list.media.size() = %d", file_list.media.size());
+    for (auto &file : file_list.media) {
+      if ((file.fileSize > 0) && (file.valid))
+      printMediaFileMsg(file);
+    }
+  }
+}
+
+
+void VehicleNode::fileDataReqCB(E_OsdkStat ret_code, void *udata) {
+  if (ret_code == OSDK_STAT_OK) {
+    ROS_INFO("\033[1;32;40m##Download file [%s] successfully. \033[0m", udata);
+  } else {
+    ROS_ERROR("\033[1;31;40m##Download file data failed. \033[0m");
+  }
+  fileDataDownloadFinished = true;
+}
+
+
+// SERVICES
+// In order to download the filelist, it must be necessary to include this in functions
+bool VehicleNode::downloadCameraFilelistCB(onboard_dji::FileList&  request, onboard_dji::FileList& response){
+  ErrorCode::ErrorCodeType ret;
+  ROS_INFO("Play back mode setting......");
+  vehicle->cameraManager->setModeSync(PAYLOAD_INDEX_0,
+                                      CameraModule::WorkMode::PLAYBACK,
+                                      2);
+  ROS_INFO("Get liveview right......");
+    ret = vehicle->cameraManager->obtainDownloadRightSync(PAYLOAD_INDEX_0,
+                                                      true, 2);
+  ErrorCode::printErrorCodeMsg(ret);
+  ROS_INFO("Try to download file list  .......");
+  ret = vehicle->cameraManager->startReqFileList(
+    PAYLOAD_INDEX_0,
+    fileListReqCB,
+    (void*)("Download main camera file list"));
+  ErrorCode::printErrorCodeMsg(ret);
+}
+// In order to download the raw files from the main camera
+bool VehicleNode::downloadCameraFilesCallback(onboard_dji::DownloadMedia&  request, onboard_dji::DownloadMedia& response){
+  ErrorCode::ErrorCodeType ret;
+  ROS_INFO("Download file number : %d", cur_file_list.media.size());
+  uint32_t downloadCnt = cur_file_list.media.size();
+  if (downloadCnt > request.downloadCnt) downloadCnt = request.downloadCnt; //TBD: change this parameter, include that in the request of the service
+  ROS_INFO("Now try to download %d media files from main camera.", downloadCnt);
+  for (uint32_t i = 0; i < downloadCnt; i++) {
+    fileDataDownloadFinished = false;
+    ROS_INFO("playback mode......");
+    vehicle->cameraManager->setModeSync(PAYLOAD_INDEX_0,
+                                        CameraModule::WorkMode::PLAYBACK,
+                                        2);
+    ROS_INFO("Get liveview right......");
+    ret = vehicle->cameraManager->obtainDownloadRightSync(
+      PAYLOAD_INDEX_0, true, 2);
+    ErrorCode::printErrorCodeMsg(ret);
+
+    ROS_INFO("Try to download file list  .......");
+    char pathBuffer[100] = {0};
+    MediaFile targetFile = cur_file_list.media[i];
+    sprintf(pathBuffer, "/home/nvidia/DJImedia/%s", targetFile.fileName.c_str()); // TBD: change the path
+    std::string localPath(pathBuffer);
+
+    ROS_INFO("targetFile.fileIndex = %d, localPath = %s", targetFile.fileIndex, localPath.c_str());
+    ret = vehicle->cameraManager->startReqFileData(
+      PAYLOAD_INDEX_0,
+      targetFile.fileIndex,
+      localPath,
+      fileDataReqCB,
+      (void*)(localPath.c_str()));
+    ErrorCode::printErrorCodeMsg(ret);
+    while (fileDataDownloadFinished == false) {
+      OsdkOsal_TaskSleepMs(1000);
+    }
+    ROS_INFO("Prepare to do next downloading ...");
+    OsdkOsal_TaskSleepMs(1000);
+  }
 }
 
 int main(int argc, char** argv)
