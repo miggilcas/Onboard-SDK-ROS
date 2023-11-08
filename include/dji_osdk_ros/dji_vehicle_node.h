@@ -207,8 +207,8 @@ namespace dji_osdk_ros
       bool cleanUpSubscribeFromFC();
 
       // for download mediafiles from camera
-      //void fileListReqCB(E_OsdkStat ret_code, const FilePackage file_list, void* udata);
-      //void fileDataReqCB(E_OsdkStat ret_code, void *udata);
+      void fileListReqCB(E_OsdkStat ret_code, const FilePackage file_list, void* udata);
+      void fileDataReqCB(E_OsdkStat ret_code, void *udata);
     protected:
       /*! services */
       /*! for general */
