@@ -95,6 +95,8 @@
 #include <dji_osdk_ros/CameraStartShootIntervalPhoto.h>
 #include <dji_osdk_ros/CameraStopShootPhoto.h>
 #include <dji_osdk_ros/CameraRecordVideoAction.h>
+#include <dji_osdk_ros/FileList.h>
+#include <dji_osdk_ros/DownloadMedia.h>
 
 //HMS services
 #include <dji_osdk_ros/GetHMSData.h>
