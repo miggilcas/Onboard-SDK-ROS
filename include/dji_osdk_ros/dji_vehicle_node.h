@@ -538,7 +538,7 @@ namespace dji_osdk_ros
       std::vector<DJIWaypointV2Action> actions;
 
       // download camera files
-      FilePackage cur_file_list; // Could be a problem
+      //FilePackage cur_file_list; // Could be a problem
       //bool fileDataDownloadFinished = false;
     //! data broadcast callback
     void dataBroadcastCallback();

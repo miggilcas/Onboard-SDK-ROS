@@ -1823,10 +1823,11 @@ bool VehicleNode::emergencyBrakeCallback(EmergencyBrake::Request& request, Emerg
 
 // For media Download from SD cameras (tested in Zenmuse H20T, DJI M300)
 // AUXILIAR FUNCTIONS
-void VehicleNode::fileListReqCB(E_OsdkStat ret_code, const FilePackage file_list, void* udata) {
+FilePackage cur_file_list;
+void fileListReqCB(E_OsdkStat ret_code, const FilePackage file_list, void* udata) {
   //ROS_INFO("\033[1;32;40m##[%s] : ret = %d \033[0m", udata, ret_code);
   if (ret_code == OSDK_STAT_OK) {
-    this->cur_file_list = file_list;
+    cur_file_list = file_list;
     ROS_INFO("file_list.type = %d", file_list.type);
     ROS_INFO("file_list.media.size() = %d", file_list.media.size());
     for (auto &file : file_list.media) {
@@ -1837,7 +1838,7 @@ void VehicleNode::fileListReqCB(E_OsdkStat ret_code, const FilePackage file_list
 }
 
 bool fileDataDownloadFinished = false;
-void VehicleNode::fileDataReqCB(E_OsdkStat ret_code, void *udata) {
+void fileDataReqCB(E_OsdkStat ret_code, void *udata) {
   if (ret_code == OSDK_STAT_OK) {
     ROS_INFO("\033[1;32;40m##Download file [%s] successfully. \033[0m", udata);
   } else {
@@ -1863,7 +1864,7 @@ bool VehicleNode::downloadCameraFilelistCB(FileList::Request& request, FileList:
   ROS_INFO("Try to download file list  .......");
   ret = vehicle->cameraManager->startReqFileList(
     PAYLOAD_INDEX_0,
-    fileListReqCB(),
+    fileListReqCB,
     (void*)("Download main camera file list"));
   ErrorCode::printErrorCodeMsg(ret);
 }
@@ -1871,8 +1872,8 @@ bool VehicleNode::downloadCameraFilelistCB(FileList::Request& request, FileList:
 bool VehicleNode::downloadCameraFilesCallback(DownloadMedia::Request& request, DownloadMedia::Response& response){
   Vehicle* vehicle = ptr_wrapper_->getVehicle();
   ErrorCode::ErrorCodeType ret;
-  ROS_INFO("Download file number : %d", this->cur_file_list.media.size());
-  uint32_t downloadCnt = this->cur_file_list.media.size();
+  ROS_INFO("Download file number : %d", cur_file_list.media.size());
+  uint32_t downloadCnt = cur_file_list.media.size();
   if (downloadCnt > request.downloadCnt) downloadCnt = request.downloadCnt; //TBD: change this parameter, include that in the request of the service
   ROS_INFO("Now try to download %d media files from main camera.", downloadCnt);
   for (uint32_t i = 0; i < downloadCnt; i++) {
@@ -1888,7 +1889,7 @@ bool VehicleNode::downloadCameraFilesCallback(DownloadMedia::Request& request, D
 
     ROS_INFO("Try to download file list  .......");
     char pathBuffer[100] = {0};
-    MediaFile targetFile = this->cur_file_list.media[i];
+    MediaFile targetFile = cur_file_list.media[i];
     sprintf(pathBuffer, "/home/nvidia/DJImedia/%s", targetFile.fileName.c_str()); // TBD: change the path
     std::string localPath(pathBuffer);
 
@@ -1897,7 +1898,7 @@ bool VehicleNode::downloadCameraFilesCallback(DownloadMedia::Request& request, D
       PAYLOAD_INDEX_0,
       targetFile.fileIndex,
       localPath,
-      fileDataReqCB(),
+      fileDataReqCB,
       (void*)(localPath.c_str()));
     ErrorCode::printErrorCodeMsg(ret);
     while (fileDataDownloadFinished == false) {
