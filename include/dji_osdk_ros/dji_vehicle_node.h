@@ -536,7 +536,7 @@ namespace dji_osdk_ros
 
       // download camera files
       FilePackage cur_file_list; // Could be a problem
-      bool fileDataDownloadFinished = false;
+      //bool fileDataDownloadFinished = false;
     //! data broadcast callback
     void dataBroadcastCallback();
     void fromMobileDataCallback(RecvContainer recvFrame);

@@ -1836,7 +1836,7 @@ void fileListReqCB(E_OsdkStat ret_code, const FilePackage file_list, void* udata
   }
 }
 
-
+bool fileDataDownloadFinished = false;
 void fileDataReqCB(E_OsdkStat ret_code, void *udata) {
   if (ret_code == OSDK_STAT_OK) {
     ROS_INFO("\033[1;32;40m##Download file [%s] successfully. \033[0m", udata);
