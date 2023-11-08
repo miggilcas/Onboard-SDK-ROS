@@ -1850,6 +1850,7 @@ void VehicleNode::fileDataReqCB(E_OsdkStat ret_code, void *udata) {
 // SERVICES
 // In order to download the filelist, it must be necessary to include this in functions
 bool VehicleNode::downloadCameraFilelistCB(FileList::Request& request, FileList::Response& response){
+  Vehicle* vehicle = ptr_wrapper_->getVehicle();
   ErrorCode::ErrorCodeType ret;
   ROS_INFO("Play back mode setting......");
   vehicle->cameraManager->setModeSync(PAYLOAD_INDEX_0,
@@ -1868,6 +1869,7 @@ bool VehicleNode::downloadCameraFilelistCB(FileList::Request& request, FileList:
 }
 // In order to download the raw files from the main camera
 bool VehicleNode::downloadCameraFilesCallback(DownloadMedia::Request& request, DownloadMedia::Response& response){
+  Vehicle* vehicle = ptr_wrapper_->getVehicle();
   ErrorCode::ErrorCodeType ret;
   ROS_INFO("Download file number : %d", cur_file_list.media.size());
   uint32_t downloadCnt = cur_file_list.media.size();
