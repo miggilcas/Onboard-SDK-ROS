@@ -496,8 +496,8 @@ namespace dji_osdk_ros
       bool waypointV2SubscribeMissionStateCallback(dji_osdk_ros::SubscribeWaypointV2State::Request& request,
                                                    dji_osdk_ros::SubscribeWaypointV2State::Response& response);
       
-      bool VehicleNode::downloadCameraFilelistCB(FileList::Request& request, FileList::Response& response);
-      bool VehicleNode::downloadCameraFilesCallback(DownloadMedia::Request& request, DownloadMedia::Response& response);
+      bool downloadCameraFilelistCB(FileList::Request& request, FileList::Response& response);
+      bool downloadCameraFilesCallback(DownloadMedia::Request& request, DownloadMedia::Response& response);
 
       bool initSubscribe();
 
