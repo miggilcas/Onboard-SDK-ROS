@@ -1921,7 +1921,7 @@ bool VehicleNode::downloadCameraFilesCallback(DownloadMedia::Request& request, D
       
       switch (MediaFileType){
         // JPEG
-        case 0:
+        case DJI::OSDK::MediaFileType::JPEG:
         ROS_INFO("Downloading  JPEG file...");
         OsdkOsal_TaskSleepMs(5000);
         break;
