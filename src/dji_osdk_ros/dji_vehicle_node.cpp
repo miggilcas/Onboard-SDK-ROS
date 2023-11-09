@@ -1884,7 +1884,7 @@ bool VehicleNode::downloadCameraFilesCallback(DownloadMedia::Request& request, D
 
   Vehicle* vehicle = ptr_wrapper_->getVehicle();
   ErrorCode::ErrorCodeType ret;
-  int MediaFileType=0;
+  DJI::OSDK::MediaFileType MediaFileType=0;
   ROS_INFO("Download file number : %d", cur_file_list.media.size());
   uint32_t downloadCnt = cur_file_list.media.size();
   if (downloadCnt > request.downloadCnt) downloadCnt = request.downloadCnt; //TBD: change this parameter, include that in the request of the service
@@ -1953,7 +1953,7 @@ bool VehicleNode::downloadCameraFilesCallback(DownloadMedia::Request& request, D
         OsdkOsal_TaskSleepMs(5000);
         break;
 
-        case 
+         
 
       }
         
