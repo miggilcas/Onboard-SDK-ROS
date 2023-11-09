@@ -1867,6 +1867,14 @@ bool VehicleNode::downloadCameraFilelistCB(FileList::Request& request, FileList:
     fileListReqCB,
     (void*)("Download main camera file list"));
   ErrorCode::printErrorCodeMsg(ret);
+  if (!ret){
+    ROS_INFO("Download file list successfully.");
+    response.result = true;
+  }
+  else{
+    ROS_INFO("Download file list failed.");
+    response.result = false;
+  }
 }
 // In order to download the raw files from the main camera
 bool VehicleNode::downloadCameraFilesCallback(DownloadMedia::Request& request, DownloadMedia::Response& response){
@@ -1905,7 +1913,15 @@ bool VehicleNode::downloadCameraFilesCallback(DownloadMedia::Request& request, D
       OsdkOsal_TaskSleepMs(5000);
     }
     ROS_INFO("Prepare to do next downloading ...");
-    //OsdkOsal_TaskSleepMs(1000); // Don't Know if it's necessary
+    OsdkOsal_TaskSleepMs(1000); // Don't Know if it's necessary
+  }
+  if (!ret){
+    ROS_INFO("Download file data successfully.");
+    response.result = true;
+  }
+  else{
+    ROS_INFO("Download file data failed.");
+    response.result = false;
   }
 }
 
