@@ -249,6 +249,7 @@ namespace dji_osdk_ros
 
       ros::ServiceServer camera_control_download_filelist_server_;
       ros::ServiceServer camera_control_download_files_server_;
+      ros::ServiceClient camera_control_download_filelist_client_;
 
       /*! for battery */
       ros::ServiceServer get_single_battery_dynamic_info_server_;
