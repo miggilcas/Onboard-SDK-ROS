@@ -1880,6 +1880,7 @@ bool VehicleNode::downloadCameraFilelistCB(FileList::Request& request, FileList:
 bool VehicleNode::downloadCameraFilesCallback(DownloadMedia::Request& request, DownloadMedia::Response& response){
   Vehicle* vehicle = ptr_wrapper_->getVehicle();
   ErrorCode::ErrorCodeType ret;
+  int MediaFileType=0;
   ROS_INFO("Download file number : %d", cur_file_list.media.size());
   uint32_t downloadCnt = cur_file_list.media.size();
   if (downloadCnt > request.downloadCnt) downloadCnt = request.downloadCnt; //TBD: change this parameter, include that in the request of the service
@@ -1897,7 +1898,7 @@ bool VehicleNode::downloadCameraFilesCallback(DownloadMedia::Request& request, D
 
     ROS_INFO("Try to download file list  .......");
     char pathBuffer[100] = {0};
-    MediaFile targetFile = cur_file_list.media[i];
+    MediaFile targetFile = cur_file_list.media[cur_file_list.media.size()-i]; // starting from the end
     sprintf(pathBuffer, "/home/nvidia/DJImedia/%s", targetFile.fileName.c_str()); // TBD: change the path
     std::string localPath(pathBuffer);
 
@@ -1910,6 +1911,15 @@ bool VehicleNode::downloadCameraFilesCallback(DownloadMedia::Request& request, D
       (void*)(localPath.c_str()));
     ErrorCode::printErrorCodeMsg(ret);
     while (fileDataDownloadFinished == false) {
+      
+      switch (MediaFileType){
+
+        ROS_INFO("Downloading  ...");
+        break;
+      }
+        
+
+
       OsdkOsal_TaskSleepMs(5000);
     }
     ROS_INFO("Prepare to do next downloading ...");
