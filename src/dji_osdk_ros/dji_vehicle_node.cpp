@@ -233,6 +233,7 @@ void VehicleNode::initService()
   camera_control_record_video_action_server_ = nh_.advertiseService("camera_record_video_action", &VehicleNode::cameraRecordVideoActionCallback, this);
   camera_control_download_filelist_server_ = nh_.advertiseService("camera_download_filelist", &VehicleNode::downloadCameraFilelistCB, this);
   camera_control_download_files_server_ = nh_.advertiseService("camera_download_files", &VehicleNode::downloadCameraFilesCallback, this);
+  camera_control_download_filelist_client_ = nh_.serviceClient<dji_osdk_ros::FileList>("camera_download_filelist");
 
 
   /* @brief
@@ -1878,6 +1879,9 @@ bool VehicleNode::downloadCameraFilelistCB(FileList::Request& request, FileList:
 }
 // In order to download the raw files from the main camera
 bool VehicleNode::downloadCameraFilesCallback(DownloadMedia::Request& request, DownloadMedia::Response& response){
+  //We can call the FileList service directly here
+  camera_control_download_filelist_client_.call();
+
   Vehicle* vehicle = ptr_wrapper_->getVehicle();
   ErrorCode::ErrorCodeType ret;
   int MediaFileType=0;
@@ -1910,17 +1914,52 @@ bool VehicleNode::downloadCameraFilesCallback(DownloadMedia::Request& request, D
       fileDataReqCB,
       (void*)(localPath.c_str()));
     ErrorCode::printErrorCodeMsg(ret);
+
+    MediaFileType=cur_file_list.media[cur_file_list.media.size()-i-1].fileType;
     while (fileDataDownloadFinished == false) {
       
       switch (MediaFileType){
-
-        ROS_INFO("Downloading  ...");
+        // JPEG
+        case 0:
+        ROS_INFO("Downloading  JPEG file...");
+        OsdkOsal_TaskSleepMs(5000);
         break;
+        // DNG
+        case 1:
+        ROS_INFO("Downloading  DNG file...");
+        OsdkOsal_TaskSleepMs(5000);
+        break;
+        // MOV
+        case 2:
+        ROS_INFO("Downloading  MOV file...");
+        OsdkOsal_TaskSleepMs(50000);
+
+        break;
+        // MP4
+        case 3:
+        ROS_INFO("Downloading  MP4 file...");
+        OsdkOsal_TaskSleepMs(50000);
+        break;
+
+        // PANORAMA
+        case 4:
+        ROS_INFO("Downloading  PANORAMA file...");
+        OsdkOsal_TaskSleepMs(5000);
+        break;
+
+      // TIF
+        case 5:
+        ROS_INFO("Downloading  TIFF file...");
+        OsdkOsal_TaskSleepMs(5000);
+        break;
+
+        case 
+
       }
         
 
 
-      OsdkOsal_TaskSleepMs(5000);
+      
     }
     ROS_INFO("Prepare to do next downloading ...");
     OsdkOsal_TaskSleepMs(1000); // Don't Know if it's necessary
