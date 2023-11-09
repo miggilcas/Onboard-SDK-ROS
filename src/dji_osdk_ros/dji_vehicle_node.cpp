@@ -1902,10 +1902,10 @@ bool VehicleNode::downloadCameraFilesCallback(DownloadMedia::Request& request, D
       (void*)(localPath.c_str()));
     ErrorCode::printErrorCodeMsg(ret);
     while (fileDataDownloadFinished == false) {
-      OsdkOsal_TaskSleepMs(1000);
+      OsdkOsal_TaskSleepMs(5000);
     }
     ROS_INFO("Prepare to do next downloading ...");
-    OsdkOsal_TaskSleepMs(1000);
+    //OsdkOsal_TaskSleepMs(1000); // Don't Know if it's necessary
   }
 }
 
