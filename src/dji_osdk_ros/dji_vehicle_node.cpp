@@ -1880,7 +1880,8 @@ bool VehicleNode::downloadCameraFilelistCB(FileList::Request& request, FileList:
 // In order to download the raw files from the main camera
 bool VehicleNode::downloadCameraFilesCallback(DownloadMedia::Request& request, DownloadMedia::Response& response){
   //We can call the FileList service directly here
-  camera_control_download_filelist_client_.call();
+  dji_osdk_ros::FileList file_list;
+  camera_control_download_filelist_client_.call(file_list);
 
   Vehicle* vehicle = ptr_wrapper_->getVehicle();
   ErrorCode::ErrorCodeType ret;
@@ -1920,35 +1921,35 @@ bool VehicleNode::downloadCameraFilesCallback(DownloadMedia::Request& request, D
       
       switch (MediaFileType){
         // JPEG
-        case 0:
+        case JPEG:
         ROS_INFO("Downloading  JPEG file...");
         OsdkOsal_TaskSleepMs(5000);
         break;
         // DNG
-        case 1:
+        case DNG:
         ROS_INFO("Downloading  DNG file...");
         OsdkOsal_TaskSleepMs(5000);
         break;
         // MOV
-        case 2:
+        case MOV:
         ROS_INFO("Downloading  MOV file...");
         OsdkOsal_TaskSleepMs(50000);
 
         break;
         // MP4
-        case 3:
+        case MP4:
         ROS_INFO("Downloading  MP4 file...");
         OsdkOsal_TaskSleepMs(50000);
         break;
 
         // PANORAMA
-        case 4:
+        case PANORAMA:
         ROS_INFO("Downloading  PANORAMA file...");
         OsdkOsal_TaskSleepMs(5000);
         break;
 
       // TIF
-        case 5:
+        case TIFF:
         ROS_INFO("Downloading  TIFF file...");
         OsdkOsal_TaskSleepMs(5000);
         break;
