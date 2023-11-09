@@ -1880,11 +1880,37 @@ bool VehicleNode::downloadCameraFilelistCB(FileList::Request& request, FileList:
 // In order to download the raw files from the main camera
 bool VehicleNode::downloadCameraFilesCallback(DownloadMedia::Request& request, DownloadMedia::Response& response){
   //We can call the FileList service directly here
-  dji_osdk_ros::FileList file_list;
-  camera_control_download_filelist_client_.call(file_list);
+  //dji_osdk_ros::FileList file_list;
+  //camera_control_download_filelist_client_.call(file_list);
 
   Vehicle* vehicle = ptr_wrapper_->getVehicle();
+  // Just to be sure we have the most updated fileList
   ErrorCode::ErrorCodeType ret;
+  ROS_INFO("Play back mode setting......");
+  vehicle->cameraManager->setModeSync(PAYLOAD_INDEX_0,
+                                      CameraModule::WorkMode::PLAYBACK,
+                                      2);
+  ROS_INFO("Get liveview right......");
+    ret = vehicle->cameraManager->obtainDownloadRightSync(PAYLOAD_INDEX_0,
+                                                      true, 2);
+  ErrorCode::printErrorCodeMsg(ret);
+  ROS_INFO("Try to download file list  .......");
+  ret = vehicle->cameraManager->startReqFileList(
+    PAYLOAD_INDEX_0,
+    fileListReqCB,
+    (void*)("Download main camera file list"));
+  ErrorCode::printErrorCodeMsg(ret);
+  if (!ret){
+    ROS_INFO("Download file list successfully.");
+    
+  }
+  else{
+    ROS_INFO("Download file list failed.");
+    response.result = false;
+  }
+  //ErrorCode::ErrorCodeType ret;
+
+  //Exclusive for download data:
   DJI::OSDK::MediaFileType MediaFileType;
   ROS_INFO("Download file number : %d", cur_file_list.media.size());
   uint32_t downloadCnt = cur_file_list.media.size();
