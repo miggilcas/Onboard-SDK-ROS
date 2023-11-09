@@ -1926,30 +1926,30 @@ bool VehicleNode::downloadCameraFilesCallback(DownloadMedia::Request& request, D
         OsdkOsal_TaskSleepMs(5000);
         break;
         // DNG
-        case DNG:
+        case DJI::OSDK::MediaFileType::DNG:
         ROS_INFO("Downloading  DNG file...");
         OsdkOsal_TaskSleepMs(5000);
         break;
         // MOV
-        case MOV:
+        case DJI::OSDK::MediaFileType::MOV:
         ROS_INFO("Downloading  MOV file...");
         OsdkOsal_TaskSleepMs(50000);
 
         break;
         // MP4
-        case MP4:
+        case DJI::OSDK::MediaFileType::MP4:
         ROS_INFO("Downloading  MP4 file...");
         OsdkOsal_TaskSleepMs(50000);
         break;
 
         // PANORAMA
-        case PANORAMA:
+        case DJI::OSDK::MediaFileType::PANORAMA:
         ROS_INFO("Downloading  PANORAMA file...");
         OsdkOsal_TaskSleepMs(5000);
         break;
 
       // TIF
-        case TIFF:
+        case DJI::OSDK::MediaFileType::TIFF:
         ROS_INFO("Downloading  TIFF file...");
         OsdkOsal_TaskSleepMs(5000);
         break;
