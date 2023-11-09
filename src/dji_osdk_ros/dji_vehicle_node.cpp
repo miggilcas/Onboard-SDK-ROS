@@ -1898,7 +1898,7 @@ bool VehicleNode::downloadCameraFilesCallback(DownloadMedia::Request& request, D
 
     ROS_INFO("Try to download file list  .......");
     char pathBuffer[100] = {0};
-    MediaFile targetFile = cur_file_list.media[cur_file_list.media.size()-i]; // starting from the end
+    MediaFile targetFile = cur_file_list.media[cur_file_list.media.size()-i-1]; // starting from the end
     sprintf(pathBuffer, "/home/nvidia/DJImedia/%s", targetFile.fileName.c_str()); // TBD: change the path
     std::string localPath(pathBuffer);
 
