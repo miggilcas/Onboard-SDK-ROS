@@ -1946,7 +1946,7 @@ bool VehicleNode::downloadCameraFilesCallback(DownloadMedia::Request& request, D
 
     if(MediaFileType!=DJI::OSDK::MediaFileType::MOV && MediaFileType!=DJI::OSDK::MediaFileType::MP4){
       char pathBuffer[100] = {0};
-      MediaFile targetFile = cur_file_list.media[cur_file_list.media.size()-i-1]; // starting from the end
+      MediaFile targetFile = cur_file_list.media[cur_file_list.media.size()-i-j-1]; // starting from the end
       sprintf(pathBuffer, "~/uav_media/%s", targetFile.fileName.c_str()); // TBD: change the path according to the date of the mission folder
       std::string localPath(pathBuffer);
       ROS_INFO("targetFile.fileIndex = %d, localPath = %s", targetFile.fileIndex, localPath.c_str());
