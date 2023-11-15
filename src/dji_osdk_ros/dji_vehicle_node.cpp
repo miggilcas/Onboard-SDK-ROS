@@ -1882,6 +1882,7 @@ bool VehicleNode::downloadCameraFilesCallback(DownloadMedia::Request& request, D
   //We can call the FileList service directly here
   //dji_osdk_ros::FileList file_list;
   //camera_control_download_filelist_client_.call(file_list);
+  int j = 0;
 
   Vehicle* vehicle = ptr_wrapper_->getVehicle();
   // Just to be sure we have the most updated fileList
@@ -1936,8 +1937,17 @@ bool VehicleNode::downloadCameraFilesCallback(DownloadMedia::Request& request, D
     ROS_INFO("targetFile.fileIndex = %d, localPath = %s", targetFile.fileIndex, localPath.c_str());
     // for now only picture files are allowed to download
     MediaFileType=cur_file_list.media[cur_file_list.media.size()-i-1].fileType;
+    // first we need to find a valid fileType:
+      while(MediaFileType!=DJI::OSDK::MediaFileType::MOV && MediaFileType!=DJI::OSDK::MediaFileType::MP4){
+        MediaFileType=cur_file_list.media[cur_file_list.media.size()-i-1 - j].fileType;
+        j--;
+
+      }
 
     if(MediaFileType!=DJI::OSDK::MediaFileType::MOV && MediaFileType!=DJI::OSDK::MediaFileType::MP4){
+      
+
+      // then download
       ret = vehicle->cameraManager->startReqFileData(
         PAYLOAD_INDEX_0,
         targetFile.fileIndex,
