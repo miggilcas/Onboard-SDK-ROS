@@ -1930,19 +1930,27 @@ bool VehicleNode::downloadCameraFilesCallback(DownloadMedia::Request& request, D
     ROS_INFO("Try to download file list  .......");
     char pathBuffer[100] = {0};
     MediaFile targetFile = cur_file_list.media[cur_file_list.media.size()-i-1]; // starting from the end
-    sprintf(pathBuffer, "/home/nvidia/DJImedia/%s", targetFile.fileName.c_str()); // TBD: change the path
+    sprintf(pathBuffer, "~/uav_media/%s", targetFile.fileName.c_str()); // TBD: change the path according to the date of the mission folder
     std::string localPath(pathBuffer);
 
     ROS_INFO("targetFile.fileIndex = %d, localPath = %s", targetFile.fileIndex, localPath.c_str());
-    ret = vehicle->cameraManager->startReqFileData(
-      PAYLOAD_INDEX_0,
-      targetFile.fileIndex,
-      localPath,
-      fileDataReqCB,
-      (void*)(localPath.c_str()));
-    ErrorCode::printErrorCodeMsg(ret);
-
+    // for now only picture files are allowed to download
     MediaFileType=cur_file_list.media[cur_file_list.media.size()-i-1].fileType;
+
+    if(MediaFileType!=DJI::OSDK::MediaFileType::MOV && MediaFileType!=DJI::OSDK::MediaFileType::MP4){
+      ret = vehicle->cameraManager->startReqFileData(
+        PAYLOAD_INDEX_0,
+        targetFile.fileIndex,
+        localPath,
+        fileDataReqCB,
+        (void*)(localPath.c_str()));
+      ErrorCode::printErrorCodeMsg(ret);
+    }
+    else{
+      ROS_ERROR("Only pictures downloads allowed for now");
+      response.result = false;
+    }
+    
     while (fileDataDownloadFinished == false) {
       
       switch (MediaFileType){
