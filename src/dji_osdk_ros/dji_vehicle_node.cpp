@@ -1915,7 +1915,9 @@ bool VehicleNode::downloadCameraFilesCallback(DownloadMedia::Request& request, D
   uint32_t downloadCnt = cur_file_list.media.size();
   if (downloadCnt > request.downloadCnt) downloadCnt = request.downloadCnt; //TBD: change this parameter, include that in the request of the service
   ROS_INFO("Now try to download %d media files from main camera.", downloadCnt);
-  for (uint32_t i = 0; i < downloadCnt; i++) {
+  uint32_t i = 0;
+  uint32_t j = 0;
+  while(i < downloadCnt ) {
     fileDataDownloadFinished = false;
     ROS_INFO("playback mode......");
     vehicle->cameraManager->setModeSync(PAYLOAD_INDEX_0,
@@ -1935,7 +1937,7 @@ bool VehicleNode::downloadCameraFilesCallback(DownloadMedia::Request& request, D
     ROS_INFO("targetFile.fileIndex = %d, localPath = %s", targetFile.fileIndex, localPath.c_str());*/
     
     // first we need to find a valid fileType:
-    for (uint32_t j = 0; j < cur_file_list.media.size(); j++) {
+    while ( j < cur_file_list.media.size()) {
       // for now only picture files are allowed to download
       MediaFileType=cur_file_list.media[cur_file_list.media.size()-i-j-1].fileType;
       if(MediaFileType!=DJI::OSDK::MediaFileType::MOV && MediaFileType!=DJI::OSDK::MediaFileType::MP4){
@@ -1952,11 +1954,14 @@ bool VehicleNode::downloadCameraFilesCallback(DownloadMedia::Request& request, D
           fileDataReqCB,
           (void*)(localPath.c_str()));
         ErrorCode::printErrorCodeMsg(ret);
+        
       }
       else{
         ROS_ERROR("Only pictures downloads allowed for now");
         response.result = false;
       }
+      
+      j++;
     }
     
     while (fileDataDownloadFinished == false) {
