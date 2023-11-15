@@ -1936,11 +1936,16 @@ bool VehicleNode::downloadCameraFilesCallback(DownloadMedia::Request& request, D
 
     ROS_INFO("targetFile.fileIndex = %d, localPath = %s", targetFile.fileIndex, localPath.c_str());*/
     
-    // first we need to find a valid fileType:
-    while ( j < cur_file_list.media.size()) {
+    // first we need to find a valid fileType: FIX THIS TO ONLY ITERATE THROUGH J WHEN NEEDED
+    MediaFileType=cur_file_list.media[cur_file_list.media.size()-i-j-1].fileType;
+    while ( j < cur_file_list.media.size() && MediaFileType!=DJI::OSDK::MediaFileType::MOV && MediaFileType!=DJI::OSDK::MediaFileType::MP4) {
       // for now only picture files are allowed to download
       MediaFileType=cur_file_list.media[cur_file_list.media.size()-i-j-1].fileType;
-      if(MediaFileType!=DJI::OSDK::MediaFileType::MOV && MediaFileType!=DJI::OSDK::MediaFileType::MP4){
+      
+      
+      j++;
+    }
+    if(MediaFileType!=DJI::OSDK::MediaFileType::MOV && MediaFileType!=DJI::OSDK::MediaFileType::MP4){
         char pathBuffer[100] = {0};
         MediaFile targetFile = cur_file_list.media[cur_file_list.media.size()-i-j-1]; // starting from the end
         sprintf(pathBuffer, "~/uav_media/%s", targetFile.fileName.c_str()); // TBD: change the path according to the date of the mission folder
@@ -1960,9 +1965,6 @@ bool VehicleNode::downloadCameraFilesCallback(DownloadMedia::Request& request, D
         ROS_ERROR("Only pictures downloads allowed for now");
         response.result = false;
       }
-      
-      j++;
-    }
     
     while (fileDataDownloadFinished == false) {
       
