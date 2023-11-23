@@ -1999,14 +1999,14 @@ bool VehicleNode::downloadCameraFilesCallback(DownloadMedia::Request& request, D
   MediaFile targetFile = cur_file_list.media[0];
   ROS_INFO("targetFile.fileIndex = %d, targetFile.fileName: %s", targetFile.fileIndex, targetFile.fileName.c_str());
 
-  if(final_date_tm > initial_date_tm){
+  if(final_seconds > initial_seconds){
     ROS_INFO("The initial date is before the final date");
 
   }
   else{
     ROS_INFO("The initial date is after the final date");
   }
-  if(archive_date_tm > initial_date_tm){
+  if(archive_seconds> initial_seconds){
     ROS_INFO("The initial date is before the archive date");
 
   }
