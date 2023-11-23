@@ -2122,7 +2122,7 @@ int cont=0; // counter for the downloaded archives
           ROS_INFO("Downloading  DNG file...");
           OsdkOsal_TaskSleepMs(5000);
           break;
-          / MOV
+          // MOV
           case DJI::OSDK::MediaFileType::MOV:
           ROS_INFO("Downloading  MOV file...");
           OsdkOsal_TaskSleepMs(50000);
