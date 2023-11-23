@@ -1970,6 +1970,7 @@ bool VehicleNode::downloadCameraFilesCallback(DownloadMedia::Request& request, D
   strptime(initial_date_cc, "%Y-%m-%d %H:%M", &initial_date_tm);
   std::time_t initial_seconds = std::mktime( & initial_date_tm);
   ROS_INFO("initial_date_str = %s, seconds = %lld", initial_date_cc, static_cast<long long>(initial_seconds));
+  ROS_WARN("The initial date from the seconds is: %s", std::ctime(&initial_seconds));
 
   // Final date: std_msgs::String final_date
   const char * final_date_cc = request.FinishDate.c_str();
@@ -1977,6 +1978,7 @@ bool VehicleNode::downloadCameraFilesCallback(DownloadMedia::Request& request, D
   strptime(final_date_cc, "%Y-%m-%d %H:%M", &final_date_tm);
   std::time_t final_seconds = std::mktime( & final_date_tm);
   ROS_INFO("final_date_str = %s, seconds = %lld", final_date_cc, static_cast<long long>(final_seconds));
+  ROS_WARN("The final date from the seconds is: %s", std::ctime(&final_seconds));
 
   /*Archive date: struct DateTime {
     int year;
@@ -1995,6 +1997,7 @@ bool VehicleNode::downloadCameraFilesCallback(DownloadMedia::Request& request, D
 
   std::time_t archive_seconds = std::mktime( & archive_date_tm);
   ROS_INFO("archive date: %d-%d-%d %d:%d, seconds = %lld",cur_file_list.media[0].date.year,cur_file_list.media[0].date.month, cur_file_list.media[0].date.day, cur_file_list.media[0].date.hour, cur_file_list.media[0].date.minute, static_cast<long long>(archive_seconds));
+  ROS_WARN("The archive date from the seconds is: %s", std::ctime(&archive_seconds));
 
   MediaFile targetFile = cur_file_list.media[0];
   ROS_INFO("targetFile.fileIndex = %d, targetFile.fileName: %s", targetFile.fileIndex, targetFile.fileName.c_str());
