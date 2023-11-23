@@ -1,3 +1,6 @@
 uint8 downloadCnt
+string initDate
+string FinishDate 
+
 ---
 bool result

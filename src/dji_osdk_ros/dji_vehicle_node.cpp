@@ -1909,12 +1909,178 @@ bool VehicleNode::downloadCameraFilesCallback(DownloadMedia::Request& request, D
     response.result = false;
   }
 
-  //Exclusive for download data:
+  //For data download
   DJI::OSDK::MediaFileType MediaFileType;
   ROS_INFO("Download file number : %d", cur_file_list.media.size());
+  /*
+  // If we wanted to download N files, we would do this
   uint32_t downloadCnt = cur_file_list.media.size();
   if (downloadCnt > request.downloadCnt) downloadCnt = request.downloadCnt; //TBD: change this parameter, include that in the request of the service
   ROS_INFO("Now try to download %d media files from main camera.", downloadCnt);
+
+  for (uint32_t i = 0; i < downloadCnt; i++) {
+    fileDataDownloadFinished = false;
+    ROS_INFO("playback mode......");
+    vehicle->cameraManager->setModeSync(PAYLOAD_INDEX_0,
+                                        CameraModule::WorkMode::PLAYBACK,
+                                        2);
+    ROS_INFO("Get liveview right......");
+    ret = vehicle->cameraManager->obtainDownloadRightSync(
+      PAYLOAD_INDEX_0, true, 2);
+    ErrorCode::printErrorCodeMsg(ret);
+
+    ROS_INFO("Try to download file list  .......");
+
+    char pathBuffer[100] = {0};
+    MediaFile targetFile = cur_file_list.media[cur_file_list.media.size()-i-1]; // starting from the end
+    sprintf(pathBuffer, "~/uav_media/%s", targetFile.fileName.c_str()); // TBD: change the path according to the date of the mission folder
+    std::string localPath(pathBuffer);
+
+    ROS_INFO("targetFile.fileIndex = %d, localPath = %s", targetFile.fileIndex, localPath.c_str());
+    ret = vehicle->cameraManager->startReqFileData(
+          PAYLOAD_INDEX_0,
+          targetFile.fileIndex,
+          localPath,
+          fileDataReqCB,
+          (void*)(localPath.c_str()));
+        ErrorCode::printErrorCodeMsg(ret);
+    while (fileDataDownloadFinished == false) {
+        OsdkOsal_TaskSleepMs(1000);
+      }
+    ROS_INFO("Prepare to do next downloading ...");
+    OsdkOsal_TaskSleepMs(1000); // Don't Know if it's necessary
+  }
+  */
+  
+  // If we wanted to download files by a given date, we would do this
+
+  /* 
+  We have to iterate through the file list and find the files that match the date
+    1.- We have to convert the dates to seconds: archive date, requested dates (initial and final)
+    2.- Compare
+    3.- Download applying different times depending on the file type
+  */
+  
+  // 1.- Convert dates to seconds
+  // Converting Initial date: std_msgs::String initial_date
+  
+  const char * initial_date_cc = request.initDate.c_str();
+
+  struct tm initial_date_tm;
+  strptime(initial_date_cc, "%Y-%m-%d %H:%M", &initial_date_tm);
+  std::time_t initial_seconds = std::mktime( & initial_date_tm);
+  ROS_INFO("initial_date_str = %s, seconds = %lld", str(initial_date_cc), static_cast<long long>(initial_seconds));
+
+  // Final date: std_msgs::String final_date
+  const char * final_date_cc = request.finalDate.c_str();
+  struct tm final_date_tm;
+  strptime(final_date_cc, "%Y-%m-%d %H:%M", &final_date_tm);
+  std::time_t final_seconds = std::mktime( & final_date_tm);
+  ROS_INFO("final_date_str = %s, seconds = %lld", str(final_date_cc), static_cast<long long>(final_seconds));
+
+  /*Archive date: struct DateTime {
+    int year;
+    int month;
+    int day;
+    int hour;
+    int minute;
+    int second;
+    };*/
+  struct tm archive_date_tm;
+  archive_date_tm.tm_year = cur_file_list.media[0].date.year;
+  archive_date_tm.tm_mon = cur_file_list.media[0].date.month;
+  archive_date_tm.tm_mday = cur_file_list.media[0].date.day;
+  archive_date_tm.tm_hour = cur_file_list.media[0].date.hour;
+  archive_date_tm.tm_min = cur_file_list.media[0].date.minute;
+
+  std::time_t archive_seconds = std::mktime( & archive_date_tm);
+  ROS_INFO("archive date in seconds = %lld", static_cast<long long>(archive_seconds));
+
+  MediaFile targetFile = cur_file_list.media[0];
+  ROS_INFO("targetFile.fileIndex = %d, targetFile.fileName: %s", targetFile.fileIndex, targetFile.fileName.c_str());
+
+
+/*
+ // iterating through the file list for steps 2 and 3
+ for(int i=0; i<cur_file_list.media.size(); i++){
+    // file date conversion
+
+    if () //comparison in seconds
+    {
+    // Download process
+    fileDataDownloadFinished = false;
+    ROS_INFO("playback mode......");
+    vehicle->cameraManager->setModeSync(PAYLOAD_INDEX_0,
+                                        CameraModule::WorkMode::PLAYBACK,
+                                        2);
+    ROS_INFO("Get liveview right......");
+    ret = vehicle->cameraManager->obtainDownloadRightSync(
+      PAYLOAD_INDEX_0, true, 2);
+    ErrorCode::printErrorCodeMsg(ret);
+
+    ROS_INFO("Try to download file  .......");
+
+    char pathBuffer[100] = {0};
+    MediaFile targetFile = cur_file_list.media[i]; // chosen file
+    sprintf(pathBuffer, "~/uav_media/%s", targetFile.fileName.c_str()); // TBD: change the path according to the date of the mission folder
+    std::string localPath(pathBuffer);
+
+    ROS_INFO("targetFile.fileIndex = %d, localPath = %s", targetFile.fileIndex, localPath.c_str());
+    ret = vehicle->cameraManager->startReqFileData(
+          PAYLOAD_INDEX_0,
+          targetFile.fileIndex,
+          localPath,
+          fileDataReqCB,
+          (void*)(localPath.c_str()));
+        ErrorCode::printErrorCodeMsg(ret);
+    
+      while (fileDataDownloadFinished == false) {
+        // Depending on the file type, we have to apply different download times
+        switch (MediaFileType){ //TBD: download in different directories
+          // JPEG
+          case DJI::OSDK::MediaFileType::JPEG:
+          ROS_INFO("Downloading  JPEG file...");
+          OsdkOsal_TaskSleepMs(5000);
+          break;
+          // DNG
+          case DJI::OSDK::MediaFileType::DNG:
+          ROS_INFO("Downloading  DNG file...");
+          OsdkOsal_TaskSleepMs(5000);
+          break;
+          // MOV
+          case DJI::OSDK::MediaFileType::MOV:
+          ROS_INFO("Downloading  MOV file...");
+          OsdkOsal_TaskSleepMs(50000);
+
+          break;
+          // MP4
+          case DJI::OSDK::MediaFileType::MP4:
+          ROS_INFO("Downloading  MP4 file...");
+          OsdkOsal_TaskSleepMs(50000);
+          break;
+          
+          // PANORAMA
+          case DJI::OSDK::MediaFileType::PANORAMA:
+          ROS_INFO("Downloading  PANORAMA file...");
+          OsdkOsal_TaskSleepMs(5000);
+          break;
+
+        // TIF
+          case DJI::OSDK::MediaFileType::TIFF:
+          ROS_INFO("Downloading  TIFF file...");
+          OsdkOsal_TaskSleepMs(5000);
+          break;
+
+        }
+      } 
+
+    }
+    
+  
+  
+  
+  }
+ 
   uint32_t i = 0;
   uint32_t j = 0;
   while(i < downloadCnt ) {
@@ -1934,7 +2100,7 @@ bool VehicleNode::downloadCameraFilesCallback(DownloadMedia::Request& request, D
     sprintf(pathBuffer, "~/uav_media/%s", targetFile.fileName.c_str()); // TBD: change the path according to the date of the mission folder
     std::string localPath(pathBuffer);
 
-    ROS_INFO("targetFile.fileIndex = %d, localPath = %s", targetFile.fileIndex, localPath.c_str());*/
+    ROS_INFO("targetFile.fileIndex = %d, localPath = %s", targetFile.fileIndex, localPath.c_str());/
     
     // first we need to find a valid fileType: FIX THIS TO ONLY ITERATE THROUGH J WHEN NEEDED
     MediaFileType=cur_file_list.media[cur_file_list.media.size()-i-j-1].fileType;
@@ -1966,7 +2132,7 @@ bool VehicleNode::downloadCameraFilesCallback(DownloadMedia::Request& request, D
         response.result = false;
       }
     
-    while (fileDataDownloadFinished == false) {
+    
       
       switch (MediaFileType){
         // JPEG
@@ -1979,7 +2145,7 @@ bool VehicleNode::downloadCameraFilesCallback(DownloadMedia::Request& request, D
         ROS_INFO("Downloading  DNG file...");
         OsdkOsal_TaskSleepMs(5000);
         break;
-        /*/ MOV
+        // MOV
         case DJI::OSDK::MediaFileType::MOV:
         ROS_INFO("Downloading  MOV file...");
         OsdkOsal_TaskSleepMs(50000);
@@ -1990,7 +2156,7 @@ bool VehicleNode::downloadCameraFilesCallback(DownloadMedia::Request& request, D
         ROS_INFO("Downloading  MP4 file...");
         OsdkOsal_TaskSleepMs(50000);
         break;
-        */
+        
         // PANORAMA
         case DJI::OSDK::MediaFileType::PANORAMA:
         ROS_INFO("Downloading  PANORAMA file...");
@@ -2006,14 +2172,10 @@ bool VehicleNode::downloadCameraFilesCallback(DownloadMedia::Request& request, D
          
 
       }
-        
-
-
-      
-    }
+    
     ROS_INFO("Prepare to do next downloading ...");
     OsdkOsal_TaskSleepMs(1000); // Don't Know if it's necessary
-  }
+  }*/
   if (!ret){
     ROS_INFO("Download file data successfully.");
     response.result = true;
