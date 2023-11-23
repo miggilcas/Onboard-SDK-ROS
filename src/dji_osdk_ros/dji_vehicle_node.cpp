@@ -2070,7 +2070,7 @@ int cont=0; // counter for the downloaded archives
         ErrorCode::printErrorCodeMsg(ret);
     
       while (fileDataDownloadFinished == false) {
-        ROS_WARN("Downloaded type: %d file...", targetFile.fileType);
+        
         OsdkOsal_TaskSleepMs(5000);
         // Depending on the file type, we have to apply different download times
         /*switch (MediaFileType){ //TBD: download in different directories
@@ -2110,9 +2110,46 @@ int cont=0; // counter for the downloaded archives
 
         }*/
       } 
-      
+      MediaFileType = targetFile.fileType;
+      switch (MediaFileType){ //TBD: download in different directories
+          // JPEG
+          case DJI::OSDK::MediaFileType::JPEG:
+          ROS_INFO("Downloading  JPEG file...");
+          OsdkOsal_TaskSleepMs(1000);
+          break;
+          // DNG
+          case DJI::OSDK::MediaFileType::DNG:
+          ROS_INFO("Downloading  DNG file...");
+          OsdkOsal_TaskSleepMs(5000);
+          break;
+          / MOV
+          case DJI::OSDK::MediaFileType::MOV:
+          ROS_INFO("Downloading  MOV file...");
+          OsdkOsal_TaskSleepMs(50000);
+
+          break;
+          // MP4
+          case DJI::OSDK::MediaFileType::MP4:
+          ROS_INFO("Downloading  MP4 file...");
+          OsdkOsal_TaskSleepMs(50000);
+          break;
+          
+          // PANORAMA
+          case DJI::OSDK::MediaFileType::PANORAMA:
+          ROS_INFO("Downloading  PANORAMA file...");
+          OsdkOsal_TaskSleepMs(5000);
+          break;
+
+        // TIF
+          case DJI::OSDK::MediaFileType::TIFF:
+          ROS_INFO("Downloading  TIFF file...");
+          OsdkOsal_TaskSleepMs(5000);
+          break;
+
+        }
+      ROS_WARN("Downloaded type: %d file...", targetFile.fileType);
       ROS_INFO("Prepare to do next downloading ...");
-      OsdkOsal_TaskSleepMs(1000); // Don't Know if it's necessary
+      //OsdkOsal_TaskSleepMs(1000); // Don't Know if it's necessary
     }
     
   }
