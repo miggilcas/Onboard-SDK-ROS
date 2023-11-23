@@ -1989,11 +1989,12 @@ bool VehicleNode::downloadCameraFilesCallback(DownloadMedia::Request& request, D
     int second;
     };*/
   struct tm archive_date_tm;
-  archive_date_tm.tm_year = cur_file_list.media[0].date.year;
-  archive_date_tm.tm_mon = cur_file_list.media[0].date.month;
+  archive_date_tm.tm_year = cur_file_list.media[0].date.year-1900;
+  archive_date_tm.tm_mon = cur_file_list.media[0].date.month-1;
   archive_date_tm.tm_mday = cur_file_list.media[0].date.day;
   archive_date_tm.tm_hour = cur_file_list.media[0].date.hour;
   archive_date_tm.tm_min = cur_file_list.media[0].date.minute;
+  archive_date_tm.tm_isdst = 0;
 
   std::time_t archive_seconds = std::mktime( & archive_date_tm);
   ROS_INFO("archive date: %d-%d-%d %d:%d, seconds = %lld",cur_file_list.media[0].date.year,cur_file_list.media[0].date.month, cur_file_list.media[0].date.day, cur_file_list.media[0].date.hour, cur_file_list.media[0].date.minute, static_cast<long long>(archive_seconds));
