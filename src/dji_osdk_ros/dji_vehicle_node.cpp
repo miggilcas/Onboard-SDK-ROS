@@ -1876,6 +1876,7 @@ bool VehicleNode::downloadCameraFilelistCB(FileList::Request& request, FileList:
     ROS_INFO("Download file list failed.");
     response.result = false;
   }
+  return response.result;
 }
 // In order to download the raw files from the main camera
 bool VehicleNode::downloadCameraFilesCallback(DownloadMedia::Request& request, DownloadMedia::Response& response){
@@ -2056,7 +2057,7 @@ int cont=0; // counter for the downloaded archives
 
     char pathBuffer[100] = {0};
     MediaFile targetFile = cur_file_list.media[i]; // chosen file
-    sprintf(pathBuffer, "/home/nvidia/uav_media/%s", targetFile.fileName.c_str()); // TBD: change the path according to the date of the mission folder
+    sprintf(pathBuffer, "./uav_media/%s", targetFile.fileName.c_str()); // TBD: change the path according to the date of the mission folder
     std::string localPath(pathBuffer);
 
     ROS_INFO("targetFile.fileIndex = %d, localPath = %s", targetFile.fileIndex, localPath.c_str());
@@ -2219,6 +2220,7 @@ int cont=0; // counter for the downloaded archives
     ROS_INFO("Download file data failed.");
     response.result = false;
   }
+  return response.result;
 }
 
 int main(int argc, char** argv)
