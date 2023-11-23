@@ -1994,10 +1994,25 @@ bool VehicleNode::downloadCameraFilesCallback(DownloadMedia::Request& request, D
   archive_date_tm.tm_min = cur_file_list.media[0].date.minute;
 
   std::time_t archive_seconds = std::mktime( & archive_date_tm);
-  ROS_INFO("archive date in seconds = %lld", static_cast<long long>(archive_seconds));
+  ROS_INFO("archive date: %d-%d-%d %d:%d, seconds = %lld",cur_file_list.media[0].date.year,cur_file_list.media[0].date.month, cur_file_list.media[0].date.day, cur_file_list.media[0].date.hour, cur_file_list.media[0].date.minute, static_cast<long long>(archive_seconds));
 
   MediaFile targetFile = cur_file_list.media[0];
   ROS_INFO("targetFile.fileIndex = %d, targetFile.fileName: %s", targetFile.fileIndex, targetFile.fileName.c_str());
+
+  if(final_date_tm > initial_date_tm){
+    ROS_INFO("The initial date is before the final date");
+
+  }
+  else{
+    ROS_INFO("The initial date is after the final date");
+  }
+  if(archive_date_tm > initial_date_tm){
+    ROS_INFO("The initial date is before the archive date");
+
+  }
+  else{
+    ROS_INFO("The initial date is after the archive date");
+  }
 
 
 /*
