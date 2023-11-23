@@ -1966,17 +1966,19 @@ bool VehicleNode::downloadCameraFilesCallback(DownloadMedia::Request& request, D
   
   const char * initial_date_cc = "2023-11-08 10:00";//request.initDate.c_str();
 
-  struct tm initial_date_tm;
+  struct tm initial_date_tm = {0};
   strptime(initial_date_cc, "%Y-%m-%d %H:%M", &initial_date_tm);
-  std::time_t initial_seconds = std::mktime( & initial_date_tm);
+  std::time_t initial_seconds = 0;
+  initial_seconds = std::mktime( & initial_date_tm);
   ROS_INFO("initial_date_str = %s, seconds = %lld", initial_date_cc, static_cast<long long>(initial_seconds));
   ROS_WARN("The initial date from the seconds is: %s", std::ctime(&initial_seconds));
 
   // Final date: std_msgs::String final_date
   const char * final_date_cc = "2023-11-09 10:00";//request.FinishDate.c_str();
-  struct tm final_date_tm;
+  struct tm final_date_tm = {0};
   strptime(final_date_cc, "%Y-%m-%d %H:%M", &final_date_tm);
-  std::time_t final_seconds = std::mktime( & final_date_tm);
+  std::time_t final_seconds = 0;
+  final_seconds = std::mktime( & final_date_tm);
   ROS_INFO("final_date_str = %s, seconds = %lld", final_date_cc, static_cast<long long>(final_seconds));
   ROS_WARN("The final date from the seconds is: %s", std::ctime(&final_seconds));
 
@@ -1988,7 +1990,7 @@ bool VehicleNode::downloadCameraFilesCallback(DownloadMedia::Request& request, D
     int minute;
     int second;
     };*/
-  struct tm archive_date_tm;
+  struct tm archive_date_tm = {0};
   archive_date_tm.tm_year = cur_file_list.media[0].date.year-1900;
   archive_date_tm.tm_mon = cur_file_list.media[0].date.month-1;
   archive_date_tm.tm_mday = cur_file_list.media[0].date.day;
@@ -1996,7 +1998,9 @@ bool VehicleNode::downloadCameraFilesCallback(DownloadMedia::Request& request, D
   archive_date_tm.tm_min = cur_file_list.media[0].date.minute;
   archive_date_tm.tm_isdst = 0;
 
-  std::time_t archive_seconds = std::mktime( & archive_date_tm);
+  std::time_t archive_seconds = 0; 
+  
+  archive_seconds = std::mktime( & archive_date_tm);
   ROS_INFO("archive date: %d-%d-%d %d:%d, seconds = %lld",cur_file_list.media[0].date.year,cur_file_list.media[0].date.month, cur_file_list.media[0].date.day, cur_file_list.media[0].date.hour, cur_file_list.media[0].date.minute, static_cast<long long>(archive_seconds));
   ROS_WARN("The archive date from the seconds is: %s", std::ctime(&archive_seconds));
 
