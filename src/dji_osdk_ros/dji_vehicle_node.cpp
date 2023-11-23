@@ -2004,24 +2004,25 @@ bool VehicleNode::downloadCameraFilesCallback(DownloadMedia::Request& request, D
 
   }
   else{
-    ROS_INFO("The initial date is after the final date");
+    ROS_ERROR("The initial date is after the final date");
   }
-  if(archive_seconds> initial_seconds){
-    ROS_INFO("The initial date is before the archive date");
+  if(archive_seconds>=initial_seconds && archive_seconds<=final_seconds){
+    ROS_INFO("The archive date is between the two dates given");
 
   }
   else{
-    ROS_INFO("The initial date is after the archive date");
+    ROS_WARN("The initial date is after the archive date");
   }
 
+int cont=0; // counter for the downloaded archives
 
-/*
  // iterating through the file list for steps 2 and 3
  for(int i=0; i<cur_file_list.media.size(); i++){
     // file date conversion
 
-    if () //comparison in seconds
+    if (archive_seconds>=initial_seconds && archive_seconds<=final_seconds) //comparison in seconds
     {
+      cont++;
     // Download process
     fileDataDownloadFinished = false;
     ROS_INFO("playback mode......");
@@ -2062,7 +2063,7 @@ bool VehicleNode::downloadCameraFilesCallback(DownloadMedia::Request& request, D
           ROS_INFO("Downloading  DNG file...");
           OsdkOsal_TaskSleepMs(5000);
           break;
-          // MOV
+          /*/ MOV
           case DJI::OSDK::MediaFileType::MOV:
           ROS_INFO("Downloading  MOV file...");
           OsdkOsal_TaskSleepMs(50000);
@@ -2073,7 +2074,7 @@ bool VehicleNode::downloadCameraFilesCallback(DownloadMedia::Request& request, D
           ROS_INFO("Downloading  MP4 file...");
           OsdkOsal_TaskSleepMs(50000);
           break;
-          
+          */
           // PANORAMA
           case DJI::OSDK::MediaFileType::PANORAMA:
           ROS_INFO("Downloading  PANORAMA file...");
@@ -2088,14 +2089,12 @@ bool VehicleNode::downloadCameraFilesCallback(DownloadMedia::Request& request, D
 
         }
       } 
-
+      ROS_INFO("Prepare to do next downloading ...");
+      OsdkOsal_TaskSleepMs(1000); // Don't Know if it's necessary
     }
     
-  
-  
-  
   }
- 
+ /*
   uint32_t i = 0;
   uint32_t j = 0;
   while(i < downloadCnt ) {
@@ -2192,7 +2191,7 @@ bool VehicleNode::downloadCameraFilesCallback(DownloadMedia::Request& request, D
     OsdkOsal_TaskSleepMs(1000); // Don't Know if it's necessary
   }*/
   if (!ret){
-    ROS_INFO("Download file data successfully.");
+    ROS_INFO("Downloaded %d files successfully.", cont);
     response.result = true;
   }
   else{
