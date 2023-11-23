@@ -1969,14 +1969,14 @@ bool VehicleNode::downloadCameraFilesCallback(DownloadMedia::Request& request, D
   struct tm initial_date_tm;
   strptime(initial_date_cc, "%Y-%m-%d %H:%M", &initial_date_tm);
   std::time_t initial_seconds = std::mktime( & initial_date_tm);
-  ROS_INFO("initial_date_str = %s, seconds = %lld", str(initial_date_cc), static_cast<long long>(initial_seconds));
+  ROS_INFO("initial_date_str = %s, seconds = %lld", initial_date_cc, static_cast<long long>(initial_seconds));
 
   // Final date: std_msgs::String final_date
-  const char * final_date_cc = request.finalDate.c_str();
+  const char * final_date_cc = request.FinishDate.c_str();
   struct tm final_date_tm;
   strptime(final_date_cc, "%Y-%m-%d %H:%M", &final_date_tm);
   std::time_t final_seconds = std::mktime( & final_date_tm);
-  ROS_INFO("final_date_str = %s, seconds = %lld", str(final_date_cc), static_cast<long long>(final_seconds));
+  ROS_INFO("final_date_str = %s, seconds = %lld", final_date_cc, static_cast<long long>(final_seconds));
 
   /*Archive date: struct DateTime {
     int year;
