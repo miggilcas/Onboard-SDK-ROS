@@ -2001,8 +2001,8 @@ bool VehicleNode::downloadCameraFilesCallback(DownloadMedia::Request& request, D
   std::time_t archive_seconds = 0; 
   
   archive_seconds = std::mktime( & archive_date_tm);
-  ROS_INFO("archive date: %d-%d-%d %d:%d, seconds = %lld",cur_file_list.media[0].date.year,cur_file_list.media[0].date.month, cur_file_list.media[0].date.day, cur_file_list.media[0].date.hour, cur_file_list.media[0].date.minute, static_cast<long long>(archive_seconds));
-  ROS_WARN("The archive date from the seconds is: %s", std::ctime(&archive_seconds));
+  ROS_INFO("First archive date: %d-%d-%d %d:%d, seconds = %lld",cur_file_list.media[0].date.year,cur_file_list.media[0].date.month, cur_file_list.media[0].date.day, cur_file_list.media[0].date.hour, cur_file_list.media[0].date.minute, static_cast<long long>(archive_seconds));
+  ROS_WARN("The first archive date from the seconds is: %s", std::ctime(&archive_seconds));
 
   MediaFile targetFile = cur_file_list.media[0];
   ROS_INFO("targetFile.fileIndex = %d, targetFile.fileName: %s", targetFile.fileIndex, targetFile.fileName.c_str());
@@ -2027,10 +2027,20 @@ int cont=0; // counter for the downloaded archives
  // iterating through the file list for steps 2 and 3
  for(int i=0; i<cur_file_list.media.size(); i++){
     // file date conversion
+    archive_date_tm.tm_year = cur_file_list.media[i].date.year-1900;
+    archive_date_tm.tm_mon = cur_file_list.media[i].date.month-1;
+    archive_date_tm.tm_mday = cur_file_list.media[i].date.day;
+    archive_date_tm.tm_hour = cur_file_list.media[i].date.hour;
+    archive_date_tm.tm_min = cur_file_list.media[i].date.minute;
+    archive_date_tm.tm_isdst = 0;
 
+    archive_seconds = std::mktime( & archive_date_tm);
+    
     if (archive_seconds>=initial_seconds && archive_seconds<=final_seconds) //comparison in seconds
     {
-      cont++;
+    ROS_INFO("The archive date is between the two dates given");
+    ROS_INFO("archive date: %d-%d-%d %d:%d, seconds = %lld",cur_file_list.media[i].date.year,cur_file_list.media[i].date.month, cur_file_list.media[i].date.day, cur_file_list.media[i].date.hour, cur_file_list.media[i].date.minute, static_cast<long long>(archive_seconds));
+    cont++;
     // Download process
     fileDataDownloadFinished = false;
     ROS_INFO("playback mode......");
@@ -2059,8 +2069,10 @@ int cont=0; // counter for the downloaded archives
         ErrorCode::printErrorCodeMsg(ret);
     
       while (fileDataDownloadFinished == false) {
+        ROS_INFO("Downloading  type: %d file...", targetFile.fileType);
+        OsdkOsal_TaskSleepMs(5000);
         // Depending on the file type, we have to apply different download times
-        switch (MediaFileType){ //TBD: download in different directories
+        /*switch (MediaFileType){ //TBD: download in different directories
           // JPEG
           case DJI::OSDK::MediaFileType::JPEG:
           ROS_INFO("Downloading  JPEG file...");
@@ -2071,7 +2083,7 @@ int cont=0; // counter for the downloaded archives
           ROS_INFO("Downloading  DNG file...");
           OsdkOsal_TaskSleepMs(5000);
           break;
-          /*/ MOV
+          / MOV
           case DJI::OSDK::MediaFileType::MOV:
           ROS_INFO("Downloading  MOV file...");
           OsdkOsal_TaskSleepMs(50000);
@@ -2082,7 +2094,7 @@ int cont=0; // counter for the downloaded archives
           ROS_INFO("Downloading  MP4 file...");
           OsdkOsal_TaskSleepMs(50000);
           break;
-          */
+          
           // PANORAMA
           case DJI::OSDK::MediaFileType::PANORAMA:
           ROS_INFO("Downloading  PANORAMA file...");
@@ -2095,7 +2107,7 @@ int cont=0; // counter for the downloaded archives
           OsdkOsal_TaskSleepMs(5000);
           break;
 
-        }
+        }*/
       } 
       ROS_INFO("Prepare to do next downloading ...");
       OsdkOsal_TaskSleepMs(1000); // Don't Know if it's necessary
