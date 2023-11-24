@@ -2064,17 +2064,17 @@ int cont=0; // counter for the downloaded archives
     ROS_INFO("Try to download file  .......");
 
     // Create the path for the file
-    /*
-    We need to look for the closest folder to the date of the file
-
     
+    /*We need to look for the closest folder to the date of the file
+
+    */
     std::string rootFolder = "../uav_media/";
     fs::path closestFolder;
     std::string closestFolder_path;
     std::time_t closestTime = std::numeric_limits<std::time_t>::max();
     bool isFolderWithinTimeRange = false;
 
-    // we look for the closest folder to the date of the file
+    /*/ we look for the closest folder to the date of the file
     for (const auto& entry : fs::directory_iterator(rootFolder)) {
         if (fs::is_directory(entry.path())) {
             std::time_t folderTime = fs::last_write_time(entry.path());
