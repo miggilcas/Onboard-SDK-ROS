@@ -2099,7 +2099,7 @@ int cont=0; // counter for the downloaded archives
 
     char pathBuffer[100] = {0};
     MediaFile targetFile = cur_file_list.media[i]; // chosen file
-    sprintf(pathBuffer, "../uav_media/%s", targetFile.fileName.c_str()); 
+    sprintf(pathBuffer, "%s/%s", closestFolder_path.c_str() ,targetFile.fileName.c_str()); 
     std::string localPath(pathBuffer);
 
     ROS_INFO("targetFile.fileIndex = %d, localPath = %s", targetFile.fileIndex, localPath.c_str());
