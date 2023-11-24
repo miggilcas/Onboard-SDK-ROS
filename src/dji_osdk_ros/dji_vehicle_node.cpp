@@ -2079,7 +2079,7 @@ int cont=0; // counter for the downloaded archives
     for (fs::directory_entry& entry : fs::recursive_directory_iterator(rootFolder)) {
         if (fs::is_directory(entry.path())) {
             std::time_t folderTime = fs::last_write_time(entry.path()); // for now it is useful, but for sure we will need to parse the name
-            if (folderTime <= archive_seconds) {
+            if (initial_seconds <= folderTime) {
                 isFolderWithinTimeRange = true;
             }
 
