@@ -2045,7 +2045,7 @@ int cont=0; // counter for the downloaded archives
 
     archive_seconds = std::mktime( & archive_date_tm);
     
-    if (archive_seconds>=initial_seconds && archive_seconds<=final_seconds) //comparison in seconds
+    if (archive_seconds>=initial_seconds && archive_seconds<=final_seconds && cur_file_list.media[i].fileType!=DJI::OSDK::MediaFileType::JPEG) //comparison in seconds
     {
     ROS_INFO("The archive date is between the two dates given");
     ROS_INFO("archive date: %d-%d-%d %d:%d, seconds = %lld",cur_file_list.media[i].date.year,cur_file_list.media[i].date.month, cur_file_list.media[i].date.day, cur_file_list.media[i].date.hour, cur_file_list.media[i].date.minute, static_cast<long long>(archive_seconds));
