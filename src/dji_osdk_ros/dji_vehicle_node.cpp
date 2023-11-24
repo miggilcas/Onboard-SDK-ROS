@@ -2135,19 +2135,19 @@ int cont=0; // counter for the downloaded archives
           // MP4
           case DJI::OSDK::MediaFileType::MP4:
           ROS_INFO("Downloaded  MP4 file...");
-          OsdkOsal_TaskSleepMs(50000);
+          OsdkOsal_TaskSleepMs(1000);
           break;
           
           // PANORAMA
           case DJI::OSDK::MediaFileType::PANORAMA:
           ROS_INFO("Downloaded  PANORAMA file...");
-          OsdkOsal_TaskSleepMs(5000);
+          OsdkOsal_TaskSleepMs(1000);
           break;
 
         // TIF
           case DJI::OSDK::MediaFileType::TIFF:
           ROS_INFO("Downloaded  TIFF file...");
-          OsdkOsal_TaskSleepMs(5000);
+          OsdkOsal_TaskSleepMs(1000);
           break;
 
         }
