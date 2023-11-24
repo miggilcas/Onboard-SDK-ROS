@@ -2093,6 +2093,8 @@ int cont=0; // counter for the downloaded archives
         }
     }
     closestFolder_path = closestFolder.generic_string();
+
+    ROS_WARN("closestFolder_path = %s", closestFolder_path.c_str());
     
 
     char pathBuffer[100] = {0};
