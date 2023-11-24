@@ -37,11 +37,11 @@
 #include <vector>
 
 // filesystem management
-#include <filesystem>
+#include <boost/filesystem.hpp>
 #include <ctime>
 #include <chrono>
 
-namespace fs = std::experimental::filesystem;
+namespace fs = boost::filesystem;
 
 //CODE
 using namespace dji_osdk_ros;
@@ -2067,7 +2067,7 @@ int cont=0; // counter for the downloaded archives
     /*
     We need to look for the closest folder to the date of the file
 
-    */
+    
     std::string rootFolder = "../uav_media/";
     fs::path closestFolder;
     std::string closestFolder_path;
@@ -2092,11 +2092,11 @@ int cont=0; // counter for the downloaded archives
         }
     }
     closestFolder_path = closestFolder.string();
-
+    */
 
     char pathBuffer[100] = {0};
     MediaFile targetFile = cur_file_list.media[i]; // chosen file
-    sprintf(pathBuffer, "%s/%s",closestFolder_path, targetFile.fileName.c_str()); 
+    sprintf(pathBuffer, "../uav_media/%s", targetFile.fileName.c_str()); 
     std::string localPath(pathBuffer);
 
     ROS_INFO("targetFile.fileIndex = %d, localPath = %s", targetFile.fileIndex, localPath.c_str());
