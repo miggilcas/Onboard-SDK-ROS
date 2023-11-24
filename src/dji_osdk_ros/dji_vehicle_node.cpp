@@ -35,6 +35,14 @@
 #endif
 
 #include <vector>
+
+// filesystem management
+#include <filesystem>
+#include <ctime>
+#include <chrono>
+
+namespace fs = std::filesystem;
+
 //CODE
 using namespace dji_osdk_ros;
 #define M300_FRONT_STEREO_PARAM_YAML_NAME "m300_front_stereo_param.yaml"
@@ -2055,9 +2063,40 @@ int cont=0; // counter for the downloaded archives
 
     ROS_INFO("Try to download file  .......");
 
+    // Create the path for the file
+    /*
+    We need to look for the closest folder to the date of the file
+
+    */
+    std::string rootFolder = "../uav_media/";
+    fs::path closestFolder;
+    std::string closestFolder_path;
+    std::time_t closestTime = std::numeric_limits<std::time_t>::max();
+    bool isFolderWithinTimeRange = false;
+
+    // we look for the closest folder to the date of the file
+    for (const auto& entry : fs::directory_iterator(rootFolder)) {
+        if (fs::is_directory(entry.path())) {
+            std::time_t folderTime = fs::last_write_time(entry.path());
+            if (folderTime <= archive_seconds) {
+                isFolderWithinTimeRange = true;
+            }
+
+            if (isFolderWithinTimeRange) {
+                std::time_t folderTime = fs::last_write_time(entry.path());
+                if (std::abs(folderTime - archive_seconds) < std::abs(closestTime - archive_seconds)) {
+                    closestTime = folderTime;
+                    closestFolder = entry.path();
+                }
+            }
+        }
+    }
+    closestFolder_path = closestFolder.string();
+
+
     char pathBuffer[100] = {0};
     MediaFile targetFile = cur_file_list.media[i]; // chosen file
-    sprintf(pathBuffer, "../uav_media/%s", targetFile.fileName.c_str()); // TBD: change the path according to the date of the mission folder
+    sprintf(pathBuffer, "%s/%s",closestFolder_path, targetFile.fileName.c_str()); 
     std::string localPath(pathBuffer);
 
     ROS_INFO("targetFile.fileIndex = %d, localPath = %s", targetFile.fileIndex, localPath.c_str());
