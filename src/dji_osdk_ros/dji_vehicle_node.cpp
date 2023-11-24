@@ -2068,16 +2068,17 @@ int cont=0; // counter for the downloaded archives
     /*We need to look for the closest folder to the date of the file
 
     */
-    std::string rootFolder = "../uav_media/";
+    std::string rootFolder_path = "../uav_media/";
+    fs::path rootFolder(rootFolder_path);
     fs::path closestFolder;
     std::string closestFolder_path;
     std::time_t closestTime = std::numeric_limits<std::time_t>::max();
     bool isFolderWithinTimeRange = false;
 
-    /*/ we look for the closest folder to the date of the file
-    for (const auto& entry : fs::directory_iterator(rootFolder)) {
+    // we look for the closest folder to the date of the file
+    for (fs::directory_entry& entry : fs::recursive_directory_iterator(rootFolder)) {
         if (fs::is_directory(entry.path())) {
-            std::time_t folderTime = fs::last_write_time(entry.path());
+            std::time_t folderTime = fs::last_write_time(entry.path()); // for now it is useful, but for sure we will need to parse the name
             if (folderTime <= archive_seconds) {
                 isFolderWithinTimeRange = true;
             }
@@ -2091,8 +2092,8 @@ int cont=0; // counter for the downloaded archives
             }
         }
     }
-    closestFolder_path = closestFolder.string();
-    */
+    closestFolder_path = closestFolder.generic_string();
+    
 
     char pathBuffer[100] = {0};
     MediaFile targetFile = cur_file_list.media[i]; // chosen file
