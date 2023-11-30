@@ -177,12 +177,17 @@
 #include <dji_osdk_ros/WaypointV2MissionEventPush.h>
 #include <dji_osdk_ros/WaypointV2MissionStatePush.h>
 
+
+// Our defined msgs
+#include <aerialcore_common/finishGetFiles.h>
+
 #define C_EARTH (double)6378137.0
 #define C_PI (double)3.141592653589793
 #define DEG2RAD(DEG) ((DEG) * ((C_PI) / (180.0)))
 #define RAD2DEG(RAD) ((RAD) * (180.0) / (C_PI))
 const int WAIT_TIMEOUT = 10;
 const int FLIGHT_CONTROL_WAIT_TIMEOUT = 1;
+
 
 // Declaration
 namespace dji_osdk_ros
@@ -250,6 +255,12 @@ namespace dji_osdk_ros
       ros::ServiceServer camera_control_download_filelist_server_;
       ros::ServiceServer camera_control_download_files_server_;
       ros::ServiceClient camera_control_download_filelist_client_;
+
+      ///////////////////////////////////////////
+      ros::ServiceServer download_finished_server_;
+      ros::ServiceClient download_finished_client_;
+
+      ///////////////////////////////////////////
 
       /*! for battery */
       ros::ServiceServer get_single_battery_dynamic_info_server_;
@@ -502,6 +513,9 @@ namespace dji_osdk_ros
       
       bool downloadCameraFilelistCB(FileList::Request& request, FileList::Response& response);
       bool downloadCameraFilesCallback(DownloadMedia::Request& request, DownloadMedia::Response& response);
+
+      ///////////////////////////////////////////
+      bool VehicleNode::downloadFinishedCB(aerialcore_common::ConfigMission::FinishDownload  &req, aerialcore_common::ConfigMission::FinishDownload &res);
 
       bool initSubscribe();
 

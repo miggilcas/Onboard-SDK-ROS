@@ -243,6 +243,18 @@ void VehicleNode::initService()
   camera_control_download_files_server_ = nh_.advertiseService("camera_download_files", &VehicleNode::downloadCameraFilesCallback, this);
   camera_control_download_filelist_client_ = nh_.serviceClient<dji_osdk_ros::FileList>("camera_download_filelist");
 
+  ////////////////////////////////////////////
+  //
+  // Testing GCS service
+  //
+  ////////////////////////////////////////////
+
+
+  download_finished_server_ = nh_.advertiseService("/GCS/FinishDownload", &VehicleNode::downloadFinishedCB, this);
+  download_finished_client_ = nh_.serviceClient<aerialcore_common::DownloadFinished>("/GCS/FinishDownload");
+
+
+  //------------------------------------------
 
   /* @brief
    * get whole battery info server
@@ -2197,6 +2209,8 @@ int cont=0; // counter for the downloaded archives
   if (!ret){
     ROS_INFO("Downloaded %d files successfully.", cont);
     response.result = true;
+    // Call a service to advice that the download has finished
+
   }
   else{
     ROS_INFO("Download file data failed.");
@@ -2204,6 +2218,29 @@ int cont=0; // counter for the downloaded archives
   }
   return response.result;
 }
+
+//////////////////////////  testing finished download  /////////////////////////////////
+bool VehicleNode::downloadFinishedCB(aerialcore_common::ConfigMission::FinishDownload  &req,
+            aerialcore_common::ConfigMission::FinishDownload &res){
+  
+
+  if(req.data == true){
+    ROS_INFO("Download finished in uav %s", req.uav_id.c_str());
+    res.result = true;
+    return true;
+    
+  }
+  else{
+    ROS_INFO("Something went wrong in uav %s", req.uav_id.c_str());
+    res.result = false;
+    return false;
+
+  }
+  
+
+}
+
+//////////////////////////  testing finished download  /////////////////////////////////
 
 int main(int argc, char** argv)
 {
