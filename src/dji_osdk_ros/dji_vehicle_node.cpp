@@ -2220,8 +2220,7 @@ int cont=0; // counter for the downloaded archives
 }
 
 //////////////////////////  testing finished download  /////////////////////////////////
-bool VehicleNode::downloadFinishedCB(aerialcore_common::FinishDownload  &req,
-            aerialcore_common::FinishDownload &res){
+bool VehicleNode::downloadFinishedCB(aerialcore_common::finishGetFiles::Request& req, aerialcore_common::finishGetFiles::Response& res){
   
 
   if(req.data == true){
