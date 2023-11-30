@@ -2225,7 +2225,7 @@ bool VehicleNode::downloadFinishedCB(aerialcore_common::finishGetFiles::Request&
 
   if(req.data == true){
     ROS_INFO("Download finished in uav %s", req.uav_id.c_str());
-    res.sucess = true;
+    res.success = true;
     res.msg = "Download finished";
     return true;
     
