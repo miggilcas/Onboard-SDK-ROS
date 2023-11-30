@@ -515,7 +515,7 @@ namespace dji_osdk_ros
       bool downloadCameraFilesCallback(DownloadMedia::Request& request, DownloadMedia::Response& response);
 
       ///////////////////////////////////////////
-      bool VehicleNode::downloadFinishedCB(aerialcore_common::finishGetFiles::Request& req, aerialcore_common::finishGetFiles::Response& res);
+      bool downloadFinishedCB(aerialcore_common::finishGetFiles::Request& req, aerialcore_common::finishGetFiles::Response& res);
 
       bool initSubscribe();
 
