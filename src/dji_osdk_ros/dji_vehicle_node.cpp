@@ -251,7 +251,7 @@ void VehicleNode::initService()
 
 
   download_finished_server_ = nh_.advertiseService("/GCS/FinishDownload", &VehicleNode::downloadFinishedCB, this);
-  download_finished_client_ = nh_.serviceClient<aerialcore_common::DownloadFinished>("/GCS/FinishDownload");
+  download_finished_client_ = nh_.serviceClient<aerialcore_common::finishGetFiles>("/GCS/FinishDownload");
 
 
   //------------------------------------------
