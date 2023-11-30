@@ -2225,13 +2225,15 @@ bool VehicleNode::downloadFinishedCB(aerialcore_common::finishGetFiles::Request&
 
   if(req.data == true){
     ROS_INFO("Download finished in uav %s", req.uav_id.c_str());
-    res.result = true;
+    res.sucess = true;
+    res.msg = "Download finished";
     return true;
     
   }
   else{
     ROS_INFO("Something went wrong in uav %s", req.uav_id.c_str());
-    res.result = false;
+    res.success = false;
+    res.msg = "Download ERROR";
     return false;
 
   }
