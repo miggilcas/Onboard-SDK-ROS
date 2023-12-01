@@ -2213,15 +2213,15 @@ int cont=0; // counter for the downloaded archives
     aerialcore_common::finishGetFiles srv;
     srv.request.uav_id = "uav_14"; //TBD change the uav_id according to the parameter
     srv.request.data = true;
-    if (download_finished_client_.call(srv))
-    {
-      ROS_INFO("Calling service finishGetFiles");
-    }
-    else
-    {
-      ROS_ERROR("Failed to call service finishGetFiles");
-      //return 1;
-    }
+    // if (download_finished_client_.call(srv))
+    // {
+    //   ROS_INFO("Calling service finishGetFiles");
+    // }
+    // else
+    // {
+    //   ROS_ERROR("Failed to call service finishGetFiles");
+    //   //return 1;
+    // }
 
   }
   else{
