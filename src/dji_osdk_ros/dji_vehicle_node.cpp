@@ -2216,7 +2216,8 @@ int cont=0; // counter for the downloaded archives
     
     if (download_finished_client_.call(srv))
     {
-      ROS_INFO("Calling service finishGetFiles");
+      ROS_INFO("finishGetFiles call OK %s", srv.response.msg.c_str());
+      
     }
     else
     {
