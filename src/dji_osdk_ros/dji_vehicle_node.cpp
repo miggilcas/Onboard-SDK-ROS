@@ -250,7 +250,7 @@ void VehicleNode::initService()
   ////////////////////////////////////////////
 
 
-  download_finished_server_ = nh_.advertiseService("/GCS/FinishDownload", &VehicleNode::downloadFinishedCB, this);
+  //download_finished_server_ = nh_.advertiseService("/GCS/FinishDownload", &VehicleNode::downloadFinishedCB, this);
   download_finished_client_ = nh_.serviceClient<aerialcore_common::finishGetFiles>("/GCS/FinishDownload");
 
 
@@ -2233,26 +2233,26 @@ int cont=0; // counter for the downloaded archives
 }
 
 //////////////////////////  testing finished download  /////////////////////////////////
-bool VehicleNode::downloadFinishedCB(aerialcore_common::finishGetFiles::Request& req, aerialcore_common::finishGetFiles::Response& res){
+// bool VehicleNode::downloadFinishedCB(aerialcore_common::finishGetFiles::Request& req, aerialcore_common::finishGetFiles::Response& res){
   
 
-  if(req.data == true){
-    ROS_INFO("Download finished in uav %s", req.uav_id.c_str());
-    res.success = true;
-    res.msg = "Download finished";
-    return true;
+//   if(req.data == true){
+//     ROS_INFO("Download finished in uav %s", req.uav_id.c_str());
+//     res.success = true;
+//     res.msg = "Download finished";
+//     return true;
     
-  }
-  else{
-    ROS_INFO("Something went wrong in uav %s", req.uav_id.c_str());
-    res.success = false;
-    res.msg = "Download ERROR";
-    return false;
+//   }
+//   else{
+//     ROS_INFO("Something went wrong in uav %s", req.uav_id.c_str());
+//     res.success = false;
+//     res.msg = "Download ERROR";
+//     return false;
 
-  }
+//   }
   
 
-}
+// }
 
 //////////////////////////  testing finished download  /////////////////////////////////
 

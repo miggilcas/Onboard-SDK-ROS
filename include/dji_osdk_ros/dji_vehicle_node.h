@@ -257,7 +257,7 @@ namespace dji_osdk_ros
       ros::ServiceClient camera_control_download_filelist_client_;
 
       ///////////////////////////////////////////
-      ros::ServiceServer download_finished_server_;
+      //ros::ServiceServer download_finished_server_;
       ros::ServiceClient download_finished_client_;
 
       ///////////////////////////////////////////
