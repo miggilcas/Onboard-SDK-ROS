@@ -1847,6 +1847,21 @@ bool VehicleNode::emergencyBrakeCallback(EmergencyBrake::Request& request, Emerg
 FilePackage cur_file_list;
 void fileListReqCB(E_OsdkStat ret_code, const FilePackage file_list, void* udata) {
   //ROS_INFO("\033[1;32;40m##[%s] : ret = %d \033[0m", udata, ret_code);
+  ROS_INFO("file_list.type ");
+  if (ret_code == OSDK_STAT_OK) {
+    cur_file_list = file_list;
+    ROS_INFO("file_list.type = %d", file_list.type);
+    ROS_INFO("file_list.media.size() = %d", file_list.media.size());
+
+    // for (auto &file : file_list.media) {
+    //   if ((file.fileSize > 0) && (file.valid))
+    //   //printMediaFileMsg(file);
+    // }
+  }
+}
+void fileListReqCB1(E_OsdkStat ret_code, const FilePackage file_list, void* udata) {
+  //ROS_INFO("\033[1;32;40m##[%s] : ret = %d \033[0m", udata, ret_code);
+  ROS_INFO("file_list.type ");
   if (ret_code == OSDK_STAT_OK) {
     cur_file_list = file_list;
     ROS_INFO("file_list.type = %d", file_list.type);
@@ -1899,11 +1914,146 @@ bool VehicleNode::downloadCameraFilelistCB(FileList::Request& request, FileList:
   }
   return response.result;
 }
+// For modularity we need to create a function that converts the initial date and the final date given by the user to seconds and
+std::time_t convertDateToSeconds(std::string date){
+  const char * date_cc = date.c_str();//"2023-11-08 10:00";
+  struct tm date_tm = {0};
+  strptime(date_cc, "%Y-%m-%d %H:%M", &date_tm);
+  std::time_t seconds = 0;
+  seconds = std::mktime( & date_tm);
+  ROS_INFO("date_str = %s, seconds = %lld", date_cc, static_cast<long long>(seconds));
+  ROS_WARN("The date from the seconds is: %s", std::ctime(&seconds));
+  return seconds;
+}
+// another one to convert the file date to seconds
+  /*Archive date: struct DateTime {
+    int year;
+    int month;
+    int day;
+    int hour;
+    int minute;
+    int second;
+    };*/
+std::time_t convertFileDateToSeconds(DJI::OSDK::DateTime file_date){
+  struct tm file_date_tm = {0};
+  file_date_tm.tm_year = file_date.year-1900;
+  file_date_tm.tm_mon = file_date.month-1;
+  file_date_tm.tm_mday = file_date.day;
+  file_date_tm.tm_hour = file_date.hour;
+  file_date_tm.tm_min = file_date.minute;
+  file_date_tm.tm_isdst = 0;
+  std::time_t file_seconds = 0;
+  file_seconds = std::mktime( & file_date_tm);
+  ROS_INFO("file date: %d-%d-%d %d:%d, seconds = %lld",file_date.year,file_date.month, file_date.day, file_date.hour, file_date.minute, static_cast<long long>(file_seconds));
+  return file_seconds;
+}
+// Function in charge of the download process
+ErrorCode::ErrorCodeType downloadFileProcess(Vehicle* vehicle,  MediaFile targetFile, std::string folder_path){
+  ErrorCode::ErrorCodeType ret;
+  
+    fileDataDownloadFinished = false;
+    ROS_INFO("playback mode......");
+    vehicle->cameraManager->setModeSync(PAYLOAD_INDEX_0,
+                                        CameraModule::WorkMode::PLAYBACK,
+                                        2);
+    ROS_INFO("Get liveview right......");
+    ret = vehicle->cameraManager->obtainDownloadRightSync(
+      PAYLOAD_INDEX_0, true, 2);
+    ErrorCode::printErrorCodeMsg(ret);
+
+    ROS_INFO("Try to download file  .......");
+
+    char pathBuffer[100] = {0};
+    sprintf(pathBuffer, "%s/%s", folder_path.c_str() ,targetFile.fileName.c_str()); 
+    std::string localPath(pathBuffer);
+
+    ROS_INFO("targetFile.fileIndex = %d, localPath = %s", targetFile.fileIndex, localPath.c_str());
+    ret = vehicle->cameraManager->startReqFileData(
+          PAYLOAD_INDEX_0,
+          targetFile.fileIndex,
+          localPath,
+          fileDataReqCB,
+          (void*)(localPath.c_str()));
+        ErrorCode::printErrorCodeMsg(ret);
+    // Timeout calculation depending on the file type, guessing that the download speed is 1MB/s and the fileSize is given in bytes (B)
+    int timeout = 0;
+
+    timeout = 1000*targetFile.fileSize/1000000;
+
+      while (fileDataDownloadFinished == false) {
+        
+        OsdkOsal_TaskSleepMs(timeout);
+      } 
+      MediaFileType = targetFile.fileType;
+      switch (MediaFileType){ //TBD: download in different directories
+          // JPEG
+          case DJI::OSDK::MediaFileType::JPEG:
+          ROS_INFO("Downloaded  JPEG file...");
+          OsdkOsal_TaskSleepMs(1000);
+          break;
+          // DNG
+          case DJI::OSDK::MediaFileType::DNG:
+          ROS_INFO("Downloaded  DNG file...");
+          OsdkOsal_TaskSleepMs(1000);
+          break;
+          // MOV
+          case DJI::OSDK::MediaFileType::MOV:
+          ROS_INFO("Downloaded  MOV file...");
+          OsdkOsal_TaskSleepMs(1000);
+
+          break;
+          // MP4
+          case DJI::OSDK::MediaFileType::MP4:
+          ROS_INFO("Downloaded  MP4 file...");
+          OsdkOsal_TaskSleepMs(1000);
+          break;
+          
+          // PANORAMA
+          case DJI::OSDK::MediaFileType::PANORAMA:
+          ROS_INFO("Downloaded  PANORAMA file...");
+          OsdkOsal_TaskSleepMs(1000);
+          break;
+
+        // TIF
+          case DJI::OSDK::MediaFileType::TIFF:
+          ROS_INFO("Downloaded  TIFF file...");
+          OsdkOsal_TaskSleepMs(1000);
+          break;
+
+        }
+      ROS_WARN("Downloaded type: %d file...", targetFile.fileType);
+      ROS_INFO("Prepare to do next downloading ...");
+  return ret;
+}
+
+
 // In order to download the raw files from the main camera
+  /* 
+  downloadCameraFilesCallback
+  We have to iterate through the file list and find the files that match the date
+    1.- We have to convert the dates to seconds: archive date, requested dates (initial and final)
+    2.- Compare
+    3.- Download applying different times depending on the file type
+  */
 bool VehicleNode::downloadCameraFilesCallback(DownloadMedia::Request& request, DownloadMedia::Response& response){
   
-  FilePackage filtered_file_list;
-  filtered_file_list.type = cur_file_list.type;
+  // 1.- Convert dates to seconds
+  // Converting Initial date: std_msgs::String initial_date
+  const char * initial_date_cc = request.initDate.c_str();//"2023-11-08 10:00";
+  // with our function we can convert the date to seconds
+  std::time_t initial_seconds = convertDateToSeconds(request.initDate);
+  // Final date: std_msgs::String final_date
+  const char * final_date_cc = request.FinishDate.c_str();//"2023-11-09 10:00";
+  std::time_t final_seconds = convertDateToSeconds(request.FinishDate);
+
+  if(final_seconds > initial_seconds){
+    ROS_INFO("The initial date is before the final date");
+  }
+  else{
+    ROS_ERROR("The initial date is after the final date");
+  }
+
+
 
   Vehicle* vehicle = ptr_wrapper_->getVehicle();
   // Just to be sure we have the most updated fileList
@@ -1932,94 +2082,19 @@ bool VehicleNode::downloadCameraFilesCallback(DownloadMedia::Request& request, D
     response.result = false;
   }
 
+
   //For data download
   DJI::OSDK::MediaFileType MediaFileType;
   ROS_INFO("Download file number : %d", cur_file_list.media.size());
-  // ----------------------------------------------------------------------------
-  
-  // If we wanted to download files by a given date, we would do this
-
-  /* 
-  We have to iterate through the file list and find the files that match the date
-    1.- We have to convert the dates to seconds: archive date, requested dates (initial and final)
-    2.- Compare
-    3.- Download applying different times depending on the file type
-  */
-  
-  // 1.- Convert dates to seconds
-  // Converting Initial date: std_msgs::String initial_date
-  
-  const char * initial_date_cc = request.initDate.c_str();//"2023-11-08 10:00";
-
-  struct tm initial_date_tm = {0};
-  strptime(initial_date_cc, "%Y-%m-%d %H:%M", &initial_date_tm);
-  std::time_t initial_seconds = 0;
-  initial_seconds = std::mktime( & initial_date_tm);
-  ROS_INFO("initial_date_str = %s, seconds = %lld", initial_date_cc, static_cast<long long>(initial_seconds));
-  ROS_WARN("The initial date from the seconds is: %s", std::ctime(&initial_seconds));
-
-  // Final date: std_msgs::String final_date
-  const char * final_date_cc = request.FinishDate.c_str();//"2023-11-09 10:00";
-  struct tm final_date_tm = {0};
-  strptime(final_date_cc, "%Y-%m-%d %H:%M", &final_date_tm);
-  std::time_t final_seconds = 0;
-  final_seconds = std::mktime( & final_date_tm);
-  ROS_INFO("final_date_str = %s, seconds = %lld", final_date_cc, static_cast<long long>(final_seconds));
-  ROS_WARN("The final date from the seconds is: %s", std::ctime(&final_seconds));
-
-  /*Archive date: struct DateTime {
-    int year;
-    int month;
-    int day;
-    int hour;
-    int minute;
-    int second;
-    };*/
-  struct tm archive_date_tm = {0};
-  archive_date_tm.tm_year = cur_file_list.media[0].date.year-1900;
-  archive_date_tm.tm_mon = cur_file_list.media[0].date.month-1;
-  archive_date_tm.tm_mday = cur_file_list.media[0].date.day;
-  archive_date_tm.tm_hour = cur_file_list.media[0].date.hour;
-  archive_date_tm.tm_min = cur_file_list.media[0].date.minute;
-  archive_date_tm.tm_isdst = 0;
-
-  std::time_t archive_seconds = 0; 
-  
-  archive_seconds = std::mktime( & archive_date_tm);
-  ROS_INFO("First archive date: %d-%d-%d %d:%d, seconds = %lld",cur_file_list.media[0].date.year,cur_file_list.media[0].date.month, cur_file_list.media[0].date.day, cur_file_list.media[0].date.hour, cur_file_list.media[0].date.minute, static_cast<long long>(archive_seconds));
-  ROS_WARN("The first archive date from the seconds is: %s", std::ctime(&archive_seconds));
-
-  MediaFile targetFile = cur_file_list.media[0];
-  ROS_INFO("targetFile.fileIndex = %d, targetFile.fileName: %s", targetFile.fileIndex, targetFile.fileName.c_str());
-
-  if(final_seconds > initial_seconds){
-    ROS_INFO("The initial date is before the final date");
-
-  }
-  else{
-    ROS_ERROR("The initial date is after the final date");
-  }
-  if(archive_seconds>=initial_seconds && archive_seconds<=final_seconds){
-    ROS_INFO("The archive date is between the two dates given");
-
-  }
-  else{
-    ROS_WARN("The initial date is after the archive date");
-  }
 
   int cont=0; // counter for the downloaded archives
 
+  FilePackage filtered_file_list;
+  filtered_file_list.type = cur_file_list.type;
  // iterating through the file list for steps 2 and 3
  for(int i=0; i<cur_file_list.media.size(); i++){
     // file date conversion
-    archive_date_tm.tm_year = cur_file_list.media[i].date.year-1900;
-    archive_date_tm.tm_mon = cur_file_list.media[i].date.month-1;
-    archive_date_tm.tm_mday = cur_file_list.media[i].date.day;
-    archive_date_tm.tm_hour = cur_file_list.media[i].date.hour;
-    archive_date_tm.tm_min = cur_file_list.media[i].date.minute;
-    archive_date_tm.tm_isdst = 0;
-
-    archive_seconds = std::mktime( & archive_date_tm);
+    std::time_t archive_seconds = convertFileDateToSeconds(cur_file_list.media[i].date);
     
     if (archive_seconds>=initial_seconds && archive_seconds<=final_seconds ) //comparison in seconds&& cur_file_list.media[i].fileType==DJI::OSDK::MediaFileType::JPEG
     {
@@ -2031,114 +2106,40 @@ bool VehicleNode::downloadCameraFilesCallback(DownloadMedia::Request& request, D
 
       //OsdkOsal_TaskSleepMs(1000); // Don't Know if it's necessary
     }
+  }
+  // Create the path for the file
+    
+  /*We need to look for the closest folder to the date of the file
+    TBD: HACER FUNCION
+  */
+  std::string rootFolder_path = "../uav_media/";
+  fs::path rootFolder(rootFolder_path);
+  fs::path closestFolder;
+  std::string closestFolder_path;
+  std::time_t closestTime = std::numeric_limits<std::time_t>::max();
+  bool isFolderWithinTimeRange = false;
+
+  // we look for the closest folder to the date of the file
+  for (fs::directory_entry& entry : fs::recursive_directory_iterator(rootFolder)) {
+      if (fs::is_directory(entry.path())) {
+        std::time_t folderTime = fs::last_write_time(entry.path());
+        if (std::abs(folderTime - archive_seconds) < std::abs(closestTime - archive_seconds)) {
+            closestTime = folderTime;
+            closestFolder = entry.path();
+        }
+      }
+      
+  }
+  closestFolder_path = closestFolder.generic_string();
+
+  ROS_WARN("closestFolder_path = %s", closestFolder_path.c_str());
+  
+
+  // Once the filtered list is complete, we can download the files
+  for(int j=0; j<filtered_file_list.media.size();j++){
+    // Call the download process function
+    ret = downloadFileProcess(vehicle, filtered_file_list.media[j], closestFolder_path);
     }
-    // Once the filtered list is complete, we can download the files
-    for(int j=0; j<filtered_file_list.media.size();j++){
-      // Download process
-      fileDataDownloadFinished = false;
-      ROS_INFO("playback mode......");
-      vehicle->cameraManager->setModeSync(PAYLOAD_INDEX_0,
-                                          CameraModule::WorkMode::PLAYBACK,
-                                          2);
-      ROS_INFO("Get liveview right......");
-      ret = vehicle->cameraManager->obtainDownloadRightSync(
-        PAYLOAD_INDEX_0, true, 2);
-      ErrorCode::printErrorCodeMsg(ret);
-
-      ROS_INFO("Try to download file  .......");
-
-      // Create the path for the file
-      
-      /*We need to look for the closest folder to the date of the file
-
-      */
-      std::string rootFolder_path = "../uav_media/";
-      fs::path rootFolder(rootFolder_path);
-      fs::path closestFolder;
-      std::string closestFolder_path;
-      std::time_t closestTime = std::numeric_limits<std::time_t>::max();
-      bool isFolderWithinTimeRange = false;
-
-      // we look for the closest folder to the date of the file
-      for (fs::directory_entry& entry : fs::recursive_directory_iterator(rootFolder)) {
-          if (fs::is_directory(entry.path())) {
-            std::time_t folderTime = fs::last_write_time(entry.path());
-            if (std::abs(folderTime - archive_seconds) < std::abs(closestTime - archive_seconds)) {
-                closestTime = folderTime;
-                closestFolder = entry.path();
-            }
-          }
-          
-      }
-      closestFolder_path = closestFolder.generic_string();
-
-      ROS_WARN("closestFolder_path = %s", closestFolder_path.c_str());
-      
-
-      char pathBuffer[100] = {0};
-      MediaFile targetFile = filtered_file_list.media[j]; // chosen file
-      sprintf(pathBuffer, "%s/%s", closestFolder_path.c_str() ,targetFile.fileName.c_str()); 
-      std::string localPath(pathBuffer);
-
-      ROS_INFO("targetFile.fileIndex = %d, localPath = %s", targetFile.fileIndex, localPath.c_str());
-      ret = vehicle->cameraManager->startReqFileData(
-            PAYLOAD_INDEX_0,
-            targetFile.fileIndex,
-            localPath,
-            fileDataReqCB,
-            (void*)(localPath.c_str()));
-          ErrorCode::printErrorCodeMsg(ret);
-      // Timeout calculation depending on the file type, guessing that the download speed is 1MB/s and the fileSize is given in bytes (B)
-      int timeout = 0;
-
-      timeout = 1000*targetFile.fileSize/1000000;
-
-        while (fileDataDownloadFinished == false) {
-          
-          OsdkOsal_TaskSleepMs(timeout);
-        } 
-        MediaFileType = targetFile.fileType;
-        switch (MediaFileType){ //TBD: download in different directories
-            // JPEG
-            case DJI::OSDK::MediaFileType::JPEG:
-            ROS_INFO("Downloaded  JPEG file...");
-            OsdkOsal_TaskSleepMs(1000);
-            break;
-            // DNG
-            case DJI::OSDK::MediaFileType::DNG:
-            ROS_INFO("Downloaded  DNG file...");
-            OsdkOsal_TaskSleepMs(1000);
-            break;
-            // MOV
-            case DJI::OSDK::MediaFileType::MOV:
-            ROS_INFO("Downloaded  MOV file...");
-            OsdkOsal_TaskSleepMs(1000);
-
-            break;
-            // MP4
-            case DJI::OSDK::MediaFileType::MP4:
-            ROS_INFO("Downloaded  MP4 file...");
-            OsdkOsal_TaskSleepMs(1000);
-            break;
-            
-            // PANORAMA
-            case DJI::OSDK::MediaFileType::PANORAMA:
-            ROS_INFO("Downloaded  PANORAMA file...");
-            OsdkOsal_TaskSleepMs(1000);
-            break;
-
-          // TIF
-            case DJI::OSDK::MediaFileType::TIFF:
-            ROS_INFO("Downloaded  TIFF file...");
-            OsdkOsal_TaskSleepMs(1000);
-            break;
-
-          }
-        ROS_WARN("Downloaded type: %d file...", targetFile.fileType);
-        ROS_INFO("Prepare to do next downloading ...");
-
-
-      }
     
   
  
