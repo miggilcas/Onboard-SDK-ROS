@@ -2031,7 +2031,7 @@ bool VehicleNode::downloadCameraFilesCallback(DownloadMedia::Request& request, D
 
       //OsdkOsal_TaskSleepMs(1000); // Don't Know if it's necessary
     }
-
+    }
     // Once the filtered list is complete, we can download the files
     for(int j=0; j<filtered_file_list.media.size();j++){
       // Download process
@@ -2140,7 +2140,7 @@ bool VehicleNode::downloadCameraFilesCallback(DownloadMedia::Request& request, D
 
       }
     
-  }
+  
  
   if (!ret){
     ROS_INFO("Downloaded %d files successfully.", cont);
