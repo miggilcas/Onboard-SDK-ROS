@@ -2157,7 +2157,7 @@ bool VehicleNode::downloadCameraFilesCallback(DownloadMedia::Request& request, D
   ROS_INFO("Try to download file list  .......");
   ret = vehicle->cameraManager->startReqFileList(
     PAYLOAD_INDEX_0,
-    fileListReqCB1,
+    VehicleNode::fileListReqCB1, this,
     (void*)("Download main camera file list"));
   ErrorCode::printErrorCodeMsg(ret);
   if (!ret){
