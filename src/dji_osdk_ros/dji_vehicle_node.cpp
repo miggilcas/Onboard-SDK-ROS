@@ -1984,7 +1984,8 @@ ErrorCode::ErrorCodeType downloadFileProcess(Vehicle* vehicle,  MediaFile target
         
         OsdkOsal_TaskSleepMs(timeout);
       } 
-      
+      DJI::OSDK::MediaFileType MediaFileType;
+      MediaFileType = targetFile.fileType;
       switch (MediaFileType){ //TBD: download in different directories
           // JPEG
           case DJI::OSDK::MediaFileType::JPEG:
@@ -2084,7 +2085,7 @@ bool VehicleNode::downloadCameraFilesCallback(DownloadMedia::Request& request, D
 
 
   //For data download
-  DJI::OSDK::MediaFileType MediaFileType;
+  
   ROS_INFO("Download file number : %d", cur_file_list.media.size());
 
   int cont=0; // counter for the downloaded archives
