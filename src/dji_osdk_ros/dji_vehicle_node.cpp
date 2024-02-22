@@ -1848,6 +1848,7 @@ FilePackage cur_file_list;
 std::time_t initial_seconds;
 std::time_t final_seconds;
 std::string closestFolder_path;
+bool flagListFiles = false;
 
 void fileListReqCB(E_OsdkStat ret_code, const FilePackage file_list, void* udata) {
   //ROS_INFO("\033[1;32;40m##[%s] : ret = %d \033[0m", udata, ret_code);
@@ -2019,76 +2020,21 @@ ErrorCode::ErrorCodeType downloadFileProcess(Vehicle* vehicle,  MediaFile target
 
 
 
-void VehicleNode::fileListReqCB1(E_OsdkStat ret_code, const FilePackage file_list, void* udata) {
+void fileListReqCB1(E_OsdkStat ret_code, const FilePackage file_list, void* udata) {
   //ROS_INFO("\033[1;32;40m##[%s] : ret = %d \033[0m", udata, ret_code);
-  ErrorCode::ErrorCodeType ret;
-  Vehicle* vehicle = ptr_wrapper_->getVehicle();
+
   ROS_INFO("file_list.type ");
   if (ret_code == OSDK_STAT_OK) {
     cur_file_list = file_list;
     ROS_INFO("file_list.type = %d", file_list.type);
     ROS_INFO("file_list.media.size() = %d", file_list.media.size());
 
+    flagListFiles = true;
 
-    //For data download
-    
-    ROS_INFO("Download file number : %d", cur_file_list.media.size());
-
-    int cont=0; // counter for the downloaded archives
-
-    FilePackage filtered_file_list;
-    filtered_file_list.type = cur_file_list.type;
-    std::time_t archive_seconds = {0};
-  // iterating through the file list for steps 2 and 3
-  for(int i=0; i<cur_file_list.media.size(); i++){
-      // file date conversion
-      archive_seconds = convertFileDateToSeconds(cur_file_list.media[i].date);
-      
-      if (archive_seconds>=initial_seconds && archive_seconds<=final_seconds ) //comparison in seconds&& cur_file_list.media[i].fileType==DJI::OSDK::MediaFileType::JPEG
-      {
-      ROS_INFO("The archive date is between the two dates given");
-      ROS_INFO("archive date: %d-%d-%d %d:%d, seconds = %lld",cur_file_list.media[i].date.year,cur_file_list.media[i].date.month, cur_file_list.media[i].date.day, cur_file_list.media[i].date.hour, cur_file_list.media[i].date.minute, static_cast<long long>(archive_seconds));
-      cont++;
-      // we add new files to the filtered list
-      filtered_file_list.media.push_back(cur_file_list.media[i]);
-      }
-    }
-
-    
-
-    // download the files
-    for(int j=0; j<filtered_file_list.media.size();j++){
-      // Call the download process function
-      ret = downloadFileProcess(vehicle, filtered_file_list.media[j], closestFolder_path);
-      }
-      
-    
-  
-    if (!ret){
-      ROS_INFO("Downloaded %d files successfully.", cont);
-      // Call a service to advice that the download has finished
-      aerialcore_common::finishGetFiles srv;
-      srv.request.uav_id = "uav_14"; //TBD change the uav_id according to the parameter
-      srv.request.data = true;
-      
-      if (VehicleNode::download_finished_client_.call(srv))
-      {
-        ROS_INFO("finishGetFiles call OK ");
-        
-      }
-      else
-      {
-        ROS_ERROR("Failed to call service finishGetFiles");
-        //return 1;
-      }
-
-    }
-    else{
-      ROS_INFO("Download file data failed.");
-    }
   }
-  return;
+
 }
+
 
 
 // In order to download the raw files from the main camera
@@ -2157,7 +2103,7 @@ bool VehicleNode::downloadCameraFilesCallback(DownloadMedia::Request& request, D
   ROS_INFO("Try to download file list  .......");
   ret = vehicle->cameraManager->startReqFileList(
     PAYLOAD_INDEX_0, 
-    VehicleNode::fileListReqCB1,
+    fileListReqCB1,
     (void*)("Download main camera file list"));
   ErrorCode::printErrorCodeMsg(ret);
   if (!ret){
@@ -2169,6 +2115,69 @@ bool VehicleNode::downloadCameraFilesCallback(DownloadMedia::Request& request, D
     response.result = false;
   }
 
+
+    while (flagListFiles == false) {
+      
+      OsdkOsal_TaskSleepMs(1000);
+    } 
+
+
+    //For data download
+    
+    ROS_INFO("Download file number : %d", cur_file_list.media.size());
+
+    int cont=0; // counter for the downloaded archives
+
+    FilePackage filtered_file_list;
+    filtered_file_list.type = cur_file_list.type;
+    std::time_t archive_seconds = {0};
+  // iterating through the file list for steps 2 and 3
+  for(int i=0; i<cur_file_list.media.size(); i++){
+      // file date conversion
+      archive_seconds = convertFileDateToSeconds(cur_file_list.media[i].date);
+      
+      if (archive_seconds>=initial_seconds && archive_seconds<=final_seconds ) //comparison in seconds&& cur_file_list.media[i].fileType==DJI::OSDK::MediaFileType::JPEG
+      {
+      ROS_INFO("The archive date is between the two dates given");
+      ROS_INFO("archive date: %d-%d-%d %d:%d, seconds = %lld",cur_file_list.media[i].date.year,cur_file_list.media[i].date.month, cur_file_list.media[i].date.day, cur_file_list.media[i].date.hour, cur_file_list.media[i].date.minute, static_cast<long long>(archive_seconds));
+      cont++;
+      // we add new files to the filtered list
+      filtered_file_list.media.push_back(cur_file_list.media[i]);
+      }
+    }
+
+    
+
+    // download the files
+    for(int j=0; j<filtered_file_list.media.size();j++){
+      // Call the download process function
+      ret = downloadFileProcess(vehicle, filtered_file_list.media[j], closestFolder_path);
+      }
+      
+    flagListFiles = false;
+  
+    if (!ret){
+      ROS_INFO("Downloaded %d files successfully.", cont);
+      // Call a service to advice that the download has finished
+      aerialcore_common::finishGetFiles srv;
+      srv.request.uav_id = "uav_14"; //TBD change the uav_id according to the parameter
+      srv.request.data = true;
+      
+      if (VehicleNode::download_finished_client_.call(srv))
+      {
+        ROS_INFO("finishGetFiles call OK ");
+        
+      }
+      else
+      {
+        ROS_ERROR("Failed to call service finishGetFiles");
+        //return 1;
+      }
+
+    }
+    else{
+      ROS_INFO("Download file data failed.");
+    }
 
   return response.result;
 }
