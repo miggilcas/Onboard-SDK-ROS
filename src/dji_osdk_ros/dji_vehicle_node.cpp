@@ -1984,7 +1984,7 @@ ErrorCode::ErrorCodeType downloadFileProcess(Vehicle* vehicle,  MediaFile target
         
         OsdkOsal_TaskSleepMs(timeout);
       } 
-      MediaFileType = targetFile.fileType;
+      
       switch (MediaFileType){ //TBD: download in different directories
           // JPEG
           case DJI::OSDK::MediaFileType::JPEG:
