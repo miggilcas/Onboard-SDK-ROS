@@ -211,6 +211,8 @@ namespace dji_osdk_ros
       bool initDataSubscribeFromFC();
       bool cleanUpSubscribeFromFC();
 
+      void fileListReqCB1(E_OsdkStat ret_code, const FilePackage file_list, void* udata);
+
       // for download mediafiles from camera
       //void fileListReqCB(E_OsdkStat ret_code, const FilePackage file_list, void* udata);
       //void fileDataReqCB(E_OsdkStat ret_code, void *udata);
@@ -513,7 +515,7 @@ namespace dji_osdk_ros
       
       bool downloadCameraFilelistCB(FileList::Request& request, FileList::Response& response);
       bool downloadCameraFilesCallback(DownloadMedia::Request& request, DownloadMedia::Response& response);
-      void fileListReqCB1(E_OsdkStat ret_code, const FilePackage file_list, void* udata);
+      
       ///////////////////////////////////////////
       bool downloadFinishedCB(aerialcore_common::finishGetFiles::Request& req, aerialcore_common::finishGetFiles::Response& res);
 
