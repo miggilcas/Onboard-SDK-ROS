@@ -2130,10 +2130,8 @@ bool VehicleNode::downloadCameraFilesCallback(DownloadMedia::Request& request, D
   for (fs::directory_entry& entry : fs::recursive_directory_iterator(rootFolder)) {
       if (fs::is_directory(entry.path())) {
         std::time_t folderTime = fs::last_write_time(entry.path());
-        if (std::abs(folderTime - archive_seconds) < std::abs(closestTime - archive_seconds)) {
-            closestTime = folderTime;
-            closestFolder = entry.path();
-        }
+        closestTime = folderTime;
+        closestFolder = entry.path();
       }
       
   }
