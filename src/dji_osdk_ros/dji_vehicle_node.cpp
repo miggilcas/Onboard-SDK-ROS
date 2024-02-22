@@ -2019,7 +2019,7 @@ ErrorCode::ErrorCodeType downloadFileProcess(Vehicle* vehicle,  MediaFile target
 
 
 
-void fileListReqCB1(E_OsdkStat ret_code, const FilePackage file_list, void* udata) {
+void VehicleNode::fileListReqCB1(E_OsdkStat ret_code, const FilePackage file_list, void* udata) {
   //ROS_INFO("\033[1;32;40m##[%s] : ret = %d \033[0m", udata, ret_code);
   ErrorCode::ErrorCodeType ret;
   Vehicle* vehicle = ptr_wrapper_->getVehicle();
