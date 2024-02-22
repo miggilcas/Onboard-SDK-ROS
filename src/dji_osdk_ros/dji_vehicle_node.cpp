@@ -2033,7 +2033,7 @@ bool VehicleNode::downloadCameraFilesCallback(DownloadMedia::Request& request, D
     }
 
     // Once the filtered list is complete, we can download the files
-    for(int j=0; j<filtered_file_list.size();j++){
+    for(int j=0; j<filtered_file_list.media.size();j++){
       // Download process
       fileDataDownloadFinished = false;
       ROS_INFO("playback mode......");
