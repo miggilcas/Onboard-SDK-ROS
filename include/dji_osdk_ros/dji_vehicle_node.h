@@ -513,7 +513,7 @@ namespace dji_osdk_ros
       
       bool downloadCameraFilelistCB(FileList::Request& request, FileList::Response& response);
       bool downloadCameraFilesCallback(DownloadMedia::Request& request, DownloadMedia::Response& response);
-      void fileListReqCB1(E_OsdkStat ret_code, const FilePackage file_list, void* udata)
+      void fileListReqCB1(E_OsdkStat ret_code, const FilePackage file_list, void* udata);
       ///////////////////////////////////////////
       bool downloadFinishedCB(aerialcore_common::finishGetFiles::Request& req, aerialcore_common::finishGetFiles::Response& res);
 
