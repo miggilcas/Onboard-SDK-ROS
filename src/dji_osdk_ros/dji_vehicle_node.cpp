@@ -1852,10 +1852,10 @@ void fileListReqCB(E_OsdkStat ret_code, const FilePackage file_list, void* udata
     ROS_INFO("file_list.type = %d", file_list.type);
     ROS_INFO("file_list.media.size() = %d", file_list.media.size());
 
-    for (auto &file : file_list.media) {
-      if ((file.fileSize > 0) && (file.valid))
-      //printMediaFileMsg(file);
-    }
+    // for (auto &file : file_list.media) {
+    //   if ((file.fileSize > 0) && (file.valid))
+    //   //printMediaFileMsg(file);
+    // }
   }
 }
 
