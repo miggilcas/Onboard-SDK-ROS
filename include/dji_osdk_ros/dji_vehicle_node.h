@@ -212,7 +212,7 @@ namespace dji_osdk_ros
       bool cleanUpSubscribeFromFC();
 
       static void fileListReqCB1(E_OsdkStat ret_code, const FilePackage file_list, void* udata);
-
+      static ros::ServiceClient download_finished_client_;
       // for download mediafiles from camera
       //void fileListReqCB(E_OsdkStat ret_code, const FilePackage file_list, void* udata);
       //void fileDataReqCB(E_OsdkStat ret_code, void *udata);
@@ -260,7 +260,7 @@ namespace dji_osdk_ros
 
       ///////////////////////////////////////////
       //ros::ServiceServer download_finished_server_;
-      ros::ServiceClient download_finished_client_;
+
 
       ///////////////////////////////////////////
 

@@ -2071,7 +2071,7 @@ void VehicleNode::fileListReqCB1(E_OsdkStat ret_code, const FilePackage file_lis
       srv.request.uav_id = "uav_14"; //TBD change the uav_id according to the parameter
       srv.request.data = true;
       
-      if (download_finished_client_.call(srv))
+      if (VehicleNode::download_finished_client_.call(srv))
       {
         ROS_INFO("finishGetFiles call OK ");
         
@@ -2157,7 +2157,7 @@ bool VehicleNode::downloadCameraFilesCallback(DownloadMedia::Request& request, D
   ROS_INFO("Try to download file list  .......");
   ret = vehicle->cameraManager->startReqFileList(
     PAYLOAD_INDEX_0, 
-    fileListReqCB1,
+    VehicleNode::fileListReqCB1,
     (void*)("Download main camera file list"));
   ErrorCode::printErrorCodeMsg(ret);
   if (!ret){
