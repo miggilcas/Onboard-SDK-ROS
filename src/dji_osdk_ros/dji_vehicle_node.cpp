@@ -2092,10 +2092,11 @@ bool VehicleNode::downloadCameraFilesCallback(DownloadMedia::Request& request, D
 
   FilePackage filtered_file_list;
   filtered_file_list.type = cur_file_list.type;
+  std::time_t archive_seconds = {0};
  // iterating through the file list for steps 2 and 3
  for(int i=0; i<cur_file_list.media.size(); i++){
     // file date conversion
-    std::time_t archive_seconds = convertFileDateToSeconds(cur_file_list.media[i].date);
+    archive_seconds = convertFileDateToSeconds(cur_file_list.media[i].date);
     
     if (archive_seconds>=initial_seconds && archive_seconds<=final_seconds ) //comparison in seconds&& cur_file_list.media[i].fileType==DJI::OSDK::MediaFileType::JPEG
     {
