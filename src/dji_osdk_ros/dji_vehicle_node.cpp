@@ -250,8 +250,7 @@ void VehicleNode::initService()
   ////////////////////////////////////////////
 
 
-  //download_finished_server_ = nh_.advertiseService("/GCS/FinishDownload", &VehicleNode::downloadFinishedCB, this);
-  download_finished_client_ = nh_.serviceClient<aerialcore_common::finishGetFiles>("/GCS/FinishDownload");
+  download_finished_pub_ = nh_.advertise<std_msgs::Bool>("dji_osdk_ros/download_finished", 1);
 
 
   //------------------------------------------
@@ -2174,48 +2173,16 @@ bool VehicleNode::downloadCameraFilesCallback(DownloadMedia::Request& request, D
     // Call a service to advice that the download has finished
     if (!ret){
       ROS_INFO("Downloaded %d files successfully.", cont);
-      aerialcore_common::finishGetFiles srv;
-      srv.request.uav_id = "uav_14"; //TBD change the uav_id according to the parameter
-      srv.request.data = true;
-      
-      if (VehicleNode::download_finished_client_.call(srv))
-      {
-        ROS_INFO("finishGetFiles call OK ");
-      }
-      else
-      {
-        ROS_ERROR("Failed to call service finishGetFiles");
-      }
+      std_msgs::Bool msg;
+      msg.data = true;
+      download_finished_pub_.publish(msg);
+      ROS_INFO("Download finished event published");
     }
     else{
       ROS_INFO("Download file data failed.");
     }
   return true;
 }
-
-//////////////////////////  testing finished download  /////////////////////////////////
-// bool VehicleNode::downloadFinishedCB(aerialcore_common::finishGetFiles::Request& req, aerialcore_common::finishGetFiles::Response& res){
-  
-
-//   if(req.data == true){
-//     ROS_INFO("Download finished in uav %s", req.uav_id.c_str());
-//     res.success = true;
-//     res.msg = "Download finished";
-//     return true;
-    
-//   }
-//   else{
-//     ROS_INFO("Something went wrong in uav %s", req.uav_id.c_str());
-//     res.success = false;
-//     res.msg = "Download ERROR";
-//     return false;
-
-//   }
-  
-
-// }
-
-//////////////////////////  testing finished download  /////////////////////////////////
 
 int main(int argc, char** argv)
 {

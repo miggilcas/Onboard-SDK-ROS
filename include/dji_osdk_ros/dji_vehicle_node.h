@@ -56,6 +56,7 @@
 #include <std_msgs/Float32.h>
 #include <std_msgs/String.h>
 #include <std_msgs/Time.h>
+#include <std_msgs/Bool.h>
 #include <nmea_msgs/Sentence.h>
 
 /*! services */
@@ -178,8 +179,6 @@
 #include <dji_osdk_ros/WaypointV2MissionStatePush.h>
 
 
-// Our defined msgs
-#include <aerialcore_common/finishGetFiles.h>
 
 #define C_EARTH (double)6378137.0
 #define C_PI (double)3.141592653589793
@@ -258,9 +257,7 @@ namespace dji_osdk_ros
       ros::ServiceClient camera_control_download_filelist_client_;
 
       ///////////////////////////////////////////
-      //ros::ServiceServer download_finished_server_;
-      ros::ServiceClient download_finished_client_;
-
+      ros::Publisher download_finished_pub_;
       ///////////////////////////////////////////
 
       /*! for battery */
@@ -515,9 +512,6 @@ namespace dji_osdk_ros
       bool downloadCameraFilelistCB(FileList::Request& request, FileList::Response& response);
       bool downloadCameraFilesCallback(DownloadMedia::Request& request, DownloadMedia::Response& response);
       
-      ///////////////////////////////////////////
-      bool downloadFinishedCB(aerialcore_common::finishGetFiles::Request& req, aerialcore_common::finishGetFiles::Response& res);
-
       bool initSubscribe();
 
     private:
